@@ -2,14 +2,11 @@ import { SlashCommandSubcommandBuilder, User } from 'discord.js';
 import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
-import { parseUserId, formatDiscordTimestamp, joinNonEmpty, buildCdnUrl } from '../utils/parsers';
+import { parseUserId, formatDiscordTimestamp, joinNonEmpty } from '../utils/parsers';
 import { BadgeService } from '../services/badgeService';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command to look up Discord user information
- */
 export class UserCommand extends BaseCommand {
   public readonly name = 'user';
   public readonly description = 'Get information about a Discord user';
@@ -34,13 +31,10 @@ export class UserCommand extends BaseCommand {
     const ephemeral = this.getEphemeralSetting(context);
 
     try {
-      // Parse user ID from mention or direct input
       const { userId } = parseUserId(userIdInput);
       
-      // Fetch user data from Discord with full profile information
       const user: User = await client.users.fetch(userId, { force: true });
       
-      // Build response
       const response = this.buildUserResponse(user);
       await sendResponse(interaction, response, ephemeral);
 
@@ -59,12 +53,9 @@ export class UserCommand extends BaseCommand {
   private buildUserResponse(user: User): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
     
-    // Get user information
     const avatarUrl = user.avatarURL({ size: 512 }) || user.defaultAvatarURL;
     const flags = user.flags?.toArray() || [];
     const badgeService = BadgeService.getInstance();
-    
-    // Basic user info
     const basicInfo = joinNonEmpty([
       `**Username:** \`${user.username}\``,
       user.globalName ? `**Global Name:** \`${user.globalName}\`` : null,
@@ -77,14 +68,11 @@ export class UserCommand extends BaseCommand {
       this.getUserCollectiblesInfo(user)
     ]);
 
-    // Add main section with avatar
     builder.addMainSection(
       user.globalName || user.username,
       basicInfo,
       avatarUrl
     );
-
-    // Add banner if available
     const bannerUrl = user.bannerURL({ size: 1024 });
     if (bannerUrl) {
       builder.addMediaGallery(bannerUrl);
@@ -110,12 +98,10 @@ export class UserCommand extends BaseCommand {
 
   private getUserCollectiblesInfo(user: User): string | null {
     try {
-      // Check if user has collectibles (new in Discord.js 14.22.0)
       const collectibles = (user as any).collectibles;
       if (collectibles && collectibles.length > 0) {
         const collectibleNames = collectibles.map((item: any) => {
           if (item.sku_id) {
-            // Profile effect or decoration
             return item.sku_id;
           }
           return 'Unknown Collectible';
@@ -124,9 +110,7 @@ export class UserCommand extends BaseCommand {
         const collectibleCount = collectibles.length;
         return `✨ **Profile Effects:** ${collectibleCount} active ${collectibleCount === 1 ? 'effect' : 'effects'}`;
       }
-    } catch (error) {
-      // Collectibles not available or not supported in this version
-    }
+    } catch (error) {}
     
     return null;
   }

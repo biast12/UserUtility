@@ -6,9 +6,6 @@ import { joinNonEmpty } from '../utils/parsers';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command to convert dates/times to Discord timestamps
- */
 export class TimestampCommand extends BaseCommand {
   public readonly name = 'timestamp';
   public readonly description = 'Convert dates and times to Discord timestamp format';
@@ -43,13 +40,10 @@ export class TimestampCommand extends BaseCommand {
       let timestamp: number;
 
       if (timestampInput) {
-        // Use provided timestamp
         timestamp = timestampInput;
       } else if (datetimeInput) {
-        // Parse datetime string
         timestamp = this.parseDatetime(datetimeInput);
       } else {
-        // Use current time
         timestamp = Math.floor(Date.now() / 1000);
       }
 
@@ -71,12 +65,10 @@ export class TimestampCommand extends BaseCommand {
   private parseDatetime(input: string): number {
     const cleaned = input.trim().toLowerCase();
 
-    // Handle "now"
     if (cleaned === 'now') {
       return Math.floor(Date.now() / 1000);
     }
 
-    // Handle relative times
     const relativeMatch = cleaned.match(/^(\d+)\s*(minutes?|mins?|hours?|hrs?|days?|weeks?|months?|years?)\s*(?:ago|from\s*now)?$/);
     if (relativeMatch) {
       const amount = parseInt(relativeMatch[1]);
@@ -120,7 +112,6 @@ export class TimestampCommand extends BaseCommand {
       return Math.floor(targetTime / 1000);
     }
 
-    // Try to parse as date
     const date = new Date(input);
     if (isNaN(date.getTime())) {
       throw new Error('Invalid date format');
@@ -134,7 +125,6 @@ export class TimestampCommand extends BaseCommand {
     
     const date = new Date(timestamp * 1000);
     
-    // All info in one section to avoid component issues
     const allInfo = joinNonEmpty([
       input ? `**Input:** \`${input}\`` : null,
       `**Unix Timestamp:** \`${timestamp}\``,
@@ -159,7 +149,6 @@ export class TimestampCommand extends BaseCommand {
       '• Unix timestamp as integer'
     ]);
 
-    // Use simple text display instead of complex sections
     builder.addText(`# Discord Timestamp Generator\n\n${allInfo}`);
 
     return builder.build();

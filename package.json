@@ -2,10 +2,10 @@
   "name": "userutility",
   "version": "1.0.0",
   "description": "A general-purpose Discord bot for user utilities and information, providing a wide range of user-focused features.",
-  "main": "dist/index.js",
+  "main": "dist/bot.js",
   "scripts": {
     "build": "tsc",
-    "start": "ts-node src/index.ts",
+    "start": "ts-node src/bot.ts",
     "register": "ts-node src/utils/registerCommands.ts"
   },
   "keywords": [
@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@types/node": "^24.3.1",
+    "discord-api-types": "^0.38.23",
     "ts-node": "^10.9.2",
     "typescript": "^5.9.2"
   }

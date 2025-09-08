@@ -6,9 +6,6 @@ import { joinNonEmpty } from '../utils/parsers';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command for color utilities and conversions
- */
 export class ColorCommand extends BaseCommand {
   public readonly name = 'color';
   public readonly description = 'Convert and preview colors in different formats';
@@ -61,7 +58,6 @@ export class ColorCommand extends BaseCommand {
   private parseColor(input: string): { r: number; g: number; b: number } | null {
     const cleaned = input.trim().toLowerCase();
 
-    // Hex format
     const hexMatch = cleaned.match(/^#?([a-f0-9]{6}|[a-f0-9]{3})$/);
     if (hexMatch) {
       let hex = hexMatch[1];
@@ -74,7 +70,6 @@ export class ColorCommand extends BaseCommand {
       return { r, g, b };
     }
 
-    // RGB format
     const rgbMatch = cleaned.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/);
     if (rgbMatch) {
       const r = parseInt(rgbMatch[1]);
@@ -85,7 +80,6 @@ export class ColorCommand extends BaseCommand {
       }
     }
 
-    // Simple RGB format (255,0,0)
     const simpleRgbMatch = cleaned.match(/^(\d+)\s*,\s*(\d+)\s*,\s*(\d+)$/);
     if (simpleRgbMatch) {
       const r = parseInt(simpleRgbMatch[1]);
@@ -96,11 +90,10 @@ export class ColorCommand extends BaseCommand {
       }
     }
 
-    // Decimal format
     const decimalMatch = cleaned.match(/^(\d+)$/);
     if (decimalMatch) {
       const decimal = parseInt(decimalMatch[1]);
-      if (decimal <= 16777215) { // Max value for 24-bit color
+      if (decimal <= 16777215) {
         const r = (decimal >> 16) & 0xFF;
         const g = (decimal >> 8) & 0xFF;
         const b = decimal & 0xFF;
@@ -142,7 +135,6 @@ export class ColorCommand extends BaseCommand {
   }
 
   private getColorName(r: number, g: number, b: number): string {
-    // Basic color recognition
     const colors = [
       { name: 'Red', r: 255, g: 0, b: 0 },
       { name: 'Green', r: 0, g: 255, b: 0 },
@@ -188,7 +180,6 @@ export class ColorCommand extends BaseCommand {
     const hsl = this.rgbToHsl(r, g, b);
     const colorName = this.getColorName(r, g, b);
     
-    // All info in one section to avoid component issues
     const allInfo = joinNonEmpty([
       `**Color Name:** \`${colorName}\``,
       `**RGB Values:** \`${r}, ${g}, ${b}\``,

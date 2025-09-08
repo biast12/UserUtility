@@ -6,9 +6,6 @@ import { parseUserId, joinNonEmpty } from '../utils/parsers';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command to get high-resolution user avatars and banners
- */
 export class AvatarCommand extends BaseCommand {
   public readonly name = 'avatar';
   public readonly description = 'Get high-resolution avatar and banner for a Discord user';
@@ -48,13 +45,10 @@ export class AvatarCommand extends BaseCommand {
     const ephemeral = this.getEphemeralSetting(context);
 
     try {
-      // Parse user ID from mention or direct input
       const { userId } = parseUserId(userIdInput);
       
-      // Fetch user data from Discord
       const user = await client.users.fetch(userId, { cache: false, force: true });
       
-      // Build response
       const response = this.buildAvatarResponse(user, size);
       await sendResponse(interaction, response, ephemeral);
 
@@ -73,16 +67,11 @@ export class AvatarCommand extends BaseCommand {
   private buildAvatarResponse(user: any, size: number): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
     
-    // Get avatar URLs
     const avatarUrl = user.avatarURL({ size, extension: 'png', forceStatic: false });
-    const defaultAvatarUrl = user.defaultAvatarURL;
     const bannerUrl = user.bannerURL({ size: 4096, extension: 'png' });
     
-    // Check if avatar/banner are animated (GIFs)
     const isAvatarAnimated = user.avatar && user.avatar.startsWith('a_');
     const isBannerAnimated = user.banner && user.banner.startsWith('a_');
-    
-    // All info in one section to avoid component issues
     const allInfo = joinNonEmpty([
       `**Username:** \`${user.username}\``,
       user.globalName ? `**Global Name:** \`${user.globalName}\`` : null,
@@ -106,10 +95,7 @@ export class AvatarCommand extends BaseCommand {
       ]) : null,
     ]);
 
-    // Use simple text display with avatar as accent
     builder.addText(`# ${user.globalName || user.username}'s Avatar\n\n${allInfo}`);
-    
-    // Add banner to media gallery if available
     if (bannerUrl) {
       builder.addMediaGallery(bannerUrl);
     }

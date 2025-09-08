@@ -6,9 +6,6 @@ import { formatDiscordTimestamp, joinNonEmpty } from '../utils/parsers';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command to decode Discord snowflake IDs
- */
 export class SnowflakeCommand extends BaseCommand {
   public readonly name = 'snowflake';
   public readonly description = 'Decode Discord snowflake IDs to get creation date and other info';
@@ -33,10 +30,8 @@ export class SnowflakeCommand extends BaseCommand {
     const ephemeral = this.getEphemeralSetting(context);
 
     try {
-      // Clean the ID (remove mentions if present)
       const cleanId = this.extractId(idInput);
       
-      // Validate snowflake
       if (!this.isValidSnowflake(cleanId)) {
         await sendError(interaction, 'Invalid Discord ID format. Please provide a valid Discord snowflake ID.');
         return;
@@ -58,22 +53,16 @@ export class SnowflakeCommand extends BaseCommand {
   }
 
   private extractId(input: string): string {
-    // Remove mentions and other formatting
     const mentionMatch = input.match(/<[@#&]:?(\d+)>/);
     if (mentionMatch) {
       return mentionMatch[1];
     }
-    
-    // Remove non-digit characters
     return input.replace(/\D/g, '');
   }
 
   private isValidSnowflake(id: string): boolean {
-    // Discord snowflakes are 64-bit integers
     const snowflake = BigInt(id);
-    const discordEpoch = BigInt(1420070400000); // Discord's epoch (2015-01-01)
-    
-    // Check if the timestamp is reasonable
+    const discordEpoch = BigInt(1420070400000);
     const timestamp = (snowflake >> 22n) + discordEpoch;
     const now = BigInt(Date.now());
     
@@ -89,8 +78,6 @@ export class SnowflakeCommand extends BaseCommand {
   } {
     const snowflake = BigInt(id);
     const discordEpoch = BigInt(1420070400000);
-    
-    // Extract components
     const timestamp = Number((snowflake >> 22n) + discordEpoch);
     const workerId = Number((snowflake & 0x3E0000n) >> 17n);
     const processId = Number((snowflake & 0x1F000n) >> 12n);
@@ -104,9 +91,6 @@ export class SnowflakeCommand extends BaseCommand {
     const snowflake = BigInt(id);
     const timestamp = Number((snowflake >> 22n) + BigInt(1420070400000));
     const date = new Date(timestamp);
-    
-    // Try to guess the type based on creation time and patterns
-    // This is just for fun - we can't actually determine the exact type
     const year = date.getFullYear();
     
     if (year < 2016) return 'Early Discord Object';
@@ -122,7 +106,6 @@ export class SnowflakeCommand extends BaseCommand {
     const creationDate = new Date(decoded.timestamp);
     const idType = this.getIdType(id);
     
-    // All info in one section to avoid component issues
     const allInfo = joinNonEmpty([
       `**ID:** \`${id}\``,
       `**Type:** \`${idType}\``,
@@ -147,7 +130,6 @@ export class SnowflakeCommand extends BaseCommand {
       `**Theoretical Max:** ~${new Date(2015, 0, 1).getFullYear() + 139} (69 years from epoch)`
     ]);
 
-    // Use simple text display instead of complex sections
     builder.addText(`# Discord Snowflake Decoder\n\n${allInfo}`);
 
     return builder.build();

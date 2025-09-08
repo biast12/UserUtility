@@ -30,9 +30,6 @@ export const Patterns = {
   DOMAIN_PROTOCOL: /^https?:\/\//,
 } as const;
 
-/**
- * Validates and retrieves bot configuration from environment variables
- */
 export function getBotConfig(): BotConfig {
   const token = process.env.BOT_TOKEN;
   if (!token) {
@@ -40,8 +37,6 @@ export function getBotConfig(): BotConfig {
   }
 
   let clientId = process.env.CLIENT_ID;
-  
-  // Auto-derive client ID from token if not provided
   if (!clientId) {
     try {
       const tokenPart = token.split('.')[0];
@@ -49,17 +44,12 @@ export function getBotConfig(): BotConfig {
       if (!/^\d+$/.test(clientId)) {
         clientId = undefined;
       }
-    } catch {
-      // Will be undefined if derivation fails
-    }
+    } catch {}
   }
 
   return { token, clientId };
 }
 
-/**
- * Validates environment configuration on startup
- */
 export function validateConfig(): void {
   getBotConfig();
   logger.info(LogArea.STARTUP, 'Environment variables are set correctly.');

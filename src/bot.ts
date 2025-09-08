@@ -12,38 +12,28 @@ import { sendError } from './core/response';
 import { logger } from './utils/logger';
 import { LogArea, LogLevel } from './types/logger';
 
-/**
- * Main bot class with clean architecture
- */
 export class UserUtilityBot {
   private client: Client;
   private commandManager: CommandManager;
 
   constructor() {
-    // Validate configuration on startup
     validateConfig();
     
-    // Configure logger
     logger.configure({
       consoleEnabled: true,
       minLevel: LogLevel.INFO
     });
 
-    // Initialize Discord client
     this.client = new Client({
       intents: [GatewayIntentBits.Guilds],
       allowedMentions: { parse: [] }
     });
 
-    // Initialize command manager
     this.commandManager = new CommandManager();
     this.registerCommands();
     this.setupEventHandlers();
   }
 
-  /**
-   * Register all available commands
-   */
   private registerCommands(): void {
     this.commandManager.register(new UserCommand());
     this.commandManager.register(new InviteCommand());
@@ -54,9 +44,6 @@ export class UserUtilityBot {
     this.commandManager.register(new ColorCommand());
   }
 
-  /**
-   * Set up Discord event handlers
-   */
   private setupEventHandlers(): void {
     this.client.once('clientReady', () => {
       logger.info(LogArea.STARTUP, `User Utility Bot is online as ${this.client.user?.tag}`);
@@ -67,27 +54,20 @@ export class UserUtilityBot {
       await this.handleInteraction(interaction);
     });
 
-    // Handle graceful shutdown
     process.on('SIGINT', () => this.shutdown());
     process.on('SIGTERM', () => this.shutdown());
   }
 
-  /**
-   * Handle Discord interactions
-   */
   private async handleInteraction(interaction: Interaction): Promise<void> {
-    // Handle autocomplete interactions
     if (interaction.isAutocomplete()) {
       await this.handleAutocomplete(interaction);
       return;
     }
 
-    // Only handle slash commands
     if (!interaction.isChatInputCommand()) return;
 
     const { commandName } = interaction;
     
-    // Only handle our main command
     if (commandName !== 'check') return;
 
     try {
@@ -98,7 +78,6 @@ export class UserUtilityBot {
         return;
       }
 
-      // Execute the command
       await this.commandManager.execute(subcommandName, {
         client: this.client,
         interaction
@@ -113,19 +92,13 @@ export class UserUtilityBot {
     }
   }
 
-  /**
-   * Handle autocomplete interactions
-   */
   private async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
     try {
       const { commandName } = interaction;
       
-      // Only handle our main command
       if (commandName !== 'check') return;
 
       const subcommandName = interaction.options.getSubcommand();
-      
-      // Get the command and check if it supports autocomplete
       const command = this.commandManager.getAllCommands().find(cmd => cmd.name === subcommandName);
       if (command && command.handleAutocomplete) {
         await command.handleAutocomplete({
@@ -141,9 +114,6 @@ export class UserUtilityBot {
     }
   }
 
-  /**
-   * Start the bot
-   */
   public async start(): Promise<void> {
     try {
       const config = getBotConfig();
@@ -157,9 +127,6 @@ export class UserUtilityBot {
     }
   }
 
-  /**
-   * Graceful shutdown
-   */
   private async shutdown(): Promise<void> {
     logger.info(LogArea.SHUTDOWN, 'Shutting down gracefully...');
     this.client.destroy();
@@ -167,9 +134,6 @@ export class UserUtilityBot {
   }
 }
 
-/**
- * Start the bot if this file is run directly
- */
 if (require.main === module) {
   const bot = new UserUtilityBot();
   bot.start();

@@ -2,7 +2,7 @@
 ECHO Starting Discord User Utility Bot (Production Mode)...
 ECHO.
 
-if not exist "dist\index.js" (
+if not exist "dist\bot.js" (
     ECHO ❌ Error: Built files not found in dist/ directory
     ECHO Please run build.bat first to compile the TypeScript code.
     ECHO.
@@ -11,7 +11,7 @@ if not exist "dist\index.js" (
     EXIT /B 1
 )
 
-node dist/index.js
+node dist/bot.js
 
 IF %ERRORLEVEL% EQU 0 (
     ECHO.

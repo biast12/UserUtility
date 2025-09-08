@@ -1,7 +1,3 @@
-/**
- * Advanced logging system with colored console output and structured logging
- * Based on the design from ClearTimerBot with TypeScript implementation
- */
 
 import { LogLevel, LogArea, LoggerConfig } from '../types/logger';
 
@@ -95,7 +91,6 @@ export class BotLogger {
       try {
         console.log(formatted);
       } catch (error) {
-        // Fallback for encoding issues
         const safeFormatted = formatted.replace(/[\u0000-\u001F\u007F-\u009F]/g, '?');
         console.log(safeFormatted);
       }
@@ -103,7 +98,6 @@ export class BotLogger {
   }
 
 
-  // Convenience methods for different log levels
   public debug(area: LogArea, message: string): void {
     this.log(LogLevel.DEBUG, area, message);
   }
@@ -133,7 +127,6 @@ export class BotLogger {
     
     if (!terminalWidth) {
       try {
-        // Try to get terminal width, fallback to 100
         terminalWidth = process.stdout.columns || 100;
       } catch {
         terminalWidth = 100;
@@ -152,7 +145,6 @@ export class BotLogger {
     }
   }
 
-  // Getters for configuration
   public get isDebugEnabled(): boolean {
     return this.minLevel === LogLevel.DEBUG;
   }
@@ -174,5 +166,4 @@ export class BotLogger {
   }
 }
 
-// Export singleton instance
 export const logger = BotLogger.getInstance();

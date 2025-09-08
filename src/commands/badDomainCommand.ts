@@ -9,9 +9,6 @@ import { Endpoints } from '../core/config';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 
-/**
- * Command to check if a domain is flagged as malicious
- */
 export class BadDomainCommand extends BaseCommand {
   public readonly name = 'baddomain';
   public readonly description = 'Check if a domain is flagged as malicious';
@@ -35,7 +32,6 @@ export class BadDomainCommand extends BaseCommand {
     const domainInput = interaction.options.getString('domain', true);
     const ephemeral = this.getEphemeralSetting(context);
 
-    // Validate domain format
     const validation = validateDomain(domainInput);
     if (!validation.isValid) {
       await sendError(interaction, validation.error!);
@@ -45,15 +41,11 @@ export class BadDomainCommand extends BaseCommand {
     const { hostname, url } = validation;
 
     try {
-      // Fetch bad domain hashes from Discord CDN
       const response = await axios.get(Endpoints.BAD_DOMAINS);
       const badDomainHashes = new Set(response.data as string[]);
       
-      // Hash the domain and check if it's in the bad domains list
       const domainHash = createHash('sha256').update(hostname!).digest('hex');
       const isBadDomain = badDomainHashes.has(domainHash);
-
-      // Send appropriate response
       const message = isBadDomain
         ? `⚠️ The domain \`${hostname}\` **is on the bad domain list**.`
         : `✅ The domain ${url} is **not** on the bad domain list.`;

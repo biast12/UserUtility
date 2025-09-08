@@ -13,10 +13,6 @@ import {
 import { Colors } from './config';
 import { ComponentResponse } from '../types';
 
-/**
- * Clean abstraction layer for Discord component responses
- * Provides consistent styling and error handling
- */
 export class ResponseBuilder {
   private container: ContainerBuilder;
 
@@ -24,9 +20,6 @@ export class ResponseBuilder {
     this.container = new ContainerBuilder().setAccentColor(color);
   }
 
-  /**
-   * Add a main section with title, content, and optional thumbnail
-   */
   addMainSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
     
@@ -47,9 +40,6 @@ export class ResponseBuilder {
     return this;
   }
 
-  /**
-   * Add a simple text section
-   */
   addTextSection(title: string, content: string): this {
     this.container
       .addSeparatorComponents(
@@ -62,9 +52,6 @@ export class ResponseBuilder {
     return this;
   }
 
-  /**
-   * Add a section with thumbnail (for user/inviter info)
-   */
   addThumbnailSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
     
@@ -90,9 +77,6 @@ export class ResponseBuilder {
     return this;
   }
 
-  /**
-   * Add simple text content
-   */
   addText(content: string): this {
     this.container.addTextDisplayComponents(
       new TextDisplayBuilder().setContent(content)
@@ -100,9 +84,6 @@ export class ResponseBuilder {
     return this;
   }
 
-  /**
-   * Add media gallery
-   */
   addMediaGallery(imageUrl: string): this {
     if (imageUrl && imageUrl.trim() !== '') {
       this.container.addMediaGalleryComponents(
@@ -114,9 +95,6 @@ export class ResponseBuilder {
     return this;
   }
 
-  /**
-   * Build the final response
-   */
   build(): ComponentResponse {
     return {
       components: [this.container],
@@ -125,13 +103,7 @@ export class ResponseBuilder {
   }
 }
 
-/**
- * Utility class for standard responses
- */
 export class StandardResponses {
-  /**
-   * Create an error response
-   */
   static error(message: string): ComponentResponse {
     return new ResponseBuilder(Colors.ERROR_RED)
       .addText('❌ **ERROR**')
@@ -139,9 +111,6 @@ export class StandardResponses {
       .build();
   }
 
-  /**
-   * Create a success response
-   */
   static success(message: string): ComponentResponse {
     return new ResponseBuilder(Colors.SUCCESS_GREEN)
       .addText('✅ **SUCCESS**')
@@ -149,9 +118,6 @@ export class StandardResponses {
       .build();
   }
 
-  /**
-   * Create a warning response
-   */
   static warning(message: string): ComponentResponse {
     return new ResponseBuilder(Colors.WARNING_YELLOW)
       .addText('⚠️ **WARNING**')
@@ -160,9 +126,6 @@ export class StandardResponses {
   }
 }
 
-/**
- * Send response to Discord, handling both ephemeral and regular messages
- */
 export async function sendResponse(
   interaction: ChatInputCommandInteraction,
   response: ComponentResponse,
@@ -184,9 +147,6 @@ export async function sendResponse(
   }
 }
 
-/**
- * Send error response
- */
 export async function sendError(
   interaction: ChatInputCommandInteraction,
   message: string
