@@ -3,6 +3,8 @@ import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { formatDiscordTimestamp, joinNonEmpty } from '../utils/parsers';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Command to decode Discord snowflake IDs
@@ -44,7 +46,10 @@ export class SnowflakeCommand extends BaseCommand {
       await sendResponse(interaction, response, ephemeral);
 
     } catch (error) {
-      console.error('Error decoding snowflake:', error);
+      logger.error(
+        LogArea.COMMANDS,
+        `Error decoding snowflake: ${error instanceof Error ? error.message : error}`
+      );
       await sendError(
         interaction,
         'Failed to decode the Discord ID. Please make sure it\'s a valid Discord snowflake.'

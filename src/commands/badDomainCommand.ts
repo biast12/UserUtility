@@ -6,6 +6,8 @@ import { CommandContext } from '../types';
 import { sendError } from '../core/response';
 import { validateDomain } from '../utils/parsers';
 import { Endpoints } from '../core/config';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Command to check if a domain is flagged as malicious
@@ -61,10 +63,13 @@ export class BadDomainCommand extends BaseCommand {
 
     } catch (error: any) {
       if (error.response?.status === 429) {
-        console.warn(`Rate limited when checking domain: ${hostname}`);
+        logger.warning(LogArea.API, `Rate limited when checking domain: ${hostname}`);
         await sendError(interaction, 'Too many requests to the bad domain service. Please try again in a moment.');
       } else {
-        console.error(`Error checking domain ${domainInput}:`, error.message || error);
+        logger.error(
+          LogArea.API,
+          `Error checking domain ${domainInput}: ${error.message || error}`
+        );
         await sendError(interaction, 'Failed to check the bad domain list. Please try again later.');
       }
     }

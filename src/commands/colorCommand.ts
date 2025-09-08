@@ -1,8 +1,10 @@
-import { SlashCommandSubcommandBuilder } from 'discord.js';
+import { SlashCommandSubcommandBuilder, AutocompleteInteraction } from 'discord.js';
 import { BaseCommand } from '../core/command';
-import { CommandContext } from '../types';
+import { CommandContext, AutocompleteContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { joinNonEmpty } from '../utils/parsers';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Command for color utilities and conversions
@@ -21,6 +23,7 @@ export class ColorCommand extends BaseCommand {
             .setName('color')
             .setDescription('Color in hex (#ff0000), rgb (255,0,0), or decimal (16711680) format')
             .setRequired(true)
+            .setAutocomplete(true)
         )
     );
   }
@@ -44,7 +47,10 @@ export class ColorCommand extends BaseCommand {
       await sendResponse(interaction, response, ephemeral);
 
     } catch (error) {
-      console.error('Error processing color:', error);
+      logger.error(
+        LogArea.COMMANDS,
+        `Error processing color: ${error instanceof Error ? error.message : error}`
+      );
       await sendError(
         interaction,
         'Failed to process the color. Please check the format and try again.'
@@ -194,15 +200,59 @@ export class ColorCommand extends BaseCommand {
       `• **RGB:** \`rgb(${r}, ${g}, ${b})\``,
       `• **HSL:** \`hsl(${hsl.h}, ${hsl.s}%, ${hsl.l}%)\``,
       `• **Discord Embed:** \`0x${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}\``,
+      `• **Role Color:** \`${(r << 16) | (g << 8) | b}\` (decimal for Discord roles)`,
       '',
       '**Usage Examples:**',
       `\`\`\`javascript\n.setColor(0x${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')})\n\`\`\``,
-      `\`\`\`css\ncolor: #${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')};\n\`\`\``
+      `\`\`\`css\ncolor: #${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')};\n\`\`\``,
+      '',
+      '**Discord Role Features:**',
+      '• **Gradient Roles:** Discord now supports gradient role colors!',
+      '• **Role Icons:** Roles can have custom icons alongside colors',
+      '• **Animated WebP:** Discord supports animated WebP for profile elements'
     ]);
 
     // Use simple text display instead of complex sections
     builder.addText(`# Color Preview\n\n${allInfo}`);
 
     return builder.build();
+  }
+
+  /**
+   * Handle autocomplete for color suggestions
+   */
+  public async handleAutocomplete(context: AutocompleteContext): Promise<void> {
+    const interaction = context.interaction;
+    const focusedOption = interaction.options.getFocused();
+    
+    // Common color suggestions
+    const colorSuggestions = [
+      { name: 'Discord Blurple', value: '#5865f2' },
+      { name: 'Discord Green', value: '#57f287' },
+      { name: 'Discord Yellow', value: '#fee75c' },
+      { name: 'Discord Red', value: '#ed4245' },
+      { name: 'Discord Dark', value: '#2c2f33' },
+      { name: 'Red', value: '#ff0000' },
+      { name: 'Green', value: '#00ff00' },
+      { name: 'Blue', value: '#0000ff' },
+      { name: 'Yellow', value: '#ffff00' },
+      { name: 'Orange', value: '#ffa500' },
+      { name: 'Purple', value: '#800080' },
+      { name: 'Pink', value: '#ffc0cb' },
+      { name: 'Cyan', value: '#00ffff' },
+      { name: 'White', value: '#ffffff' },
+      { name: 'Black', value: '#000000' },
+      { name: 'Gray', value: '#808080' }
+    ];
+
+    // Filter suggestions based on user input
+    const filtered = colorSuggestions
+      .filter(color => 
+        color.name.toLowerCase().includes(focusedOption.toLowerCase()) ||
+        color.value.toLowerCase().includes(focusedOption.toLowerCase())
+      )
+      .slice(0, 25); // Discord limit
+
+    await interaction.respond(filtered);
   }
 }

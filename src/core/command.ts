@@ -1,5 +1,5 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
-import { CommandContext } from '../types';
+import { CommandContext, AutocompleteContext } from '../types';
 
 /**
  * Abstract base class for all commands
@@ -18,6 +18,11 @@ export abstract class BaseCommand {
    * Execute the command
    */
   public abstract execute(context: CommandContext): Promise<void>;
+
+  /**
+   * Handle autocomplete interactions (optional)
+   */
+  public async handleAutocomplete?(context: AutocompleteContext): Promise<void>;
 
   /**
    * Helper to add ephemeral option to subcommands

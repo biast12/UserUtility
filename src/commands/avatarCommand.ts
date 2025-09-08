@@ -3,6 +3,8 @@ import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { parseUserId, buildCdnUrl, joinNonEmpty } from '../utils/parsers';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Command to get high-resolution user avatars and banners
@@ -57,7 +59,10 @@ export class AvatarCommand extends BaseCommand {
       await sendResponse(interaction, response, ephemeral);
 
     } catch (error) {
-      console.error(`Error fetching avatar for ${userIdInput}:`, error);
+      logger.error(
+        LogArea.COMMANDS,
+        `Error fetching avatar for ${userIdInput}: ${error instanceof Error ? error.message : error}`
+      );
       await sendError(
         interaction,
         'Failed to fetch user avatar. Please check the user ID or mention and try again.'
@@ -73,6 +78,10 @@ export class AvatarCommand extends BaseCommand {
     const defaultAvatarUrl = user.defaultAvatarURL;
     const bannerUrl = user.bannerURL({ size: 4096, extension: 'png' });
     
+    // Check if avatar/banner are animated (GIFs)
+    const isAvatarAnimated = user.avatar && user.avatar.startsWith('a_');
+    const isBannerAnimated = user.banner && user.banner.startsWith('a_');
+    
     // All info in one section to avoid component issues
     const allInfo = joinNonEmpty([
       `**Username:** \`${user.username}\``,
@@ -84,7 +93,7 @@ export class AvatarCommand extends BaseCommand {
       avatarUrl ? joinNonEmpty([
         `• [PNG (${size}px)](${user.avatarURL({ size, extension: 'png' })})`,
         `• [JPG (${size}px)](${user.avatarURL({ size, extension: 'jpg' })})`,
-        user.avatarURL({ extension: 'gif' }) ? `• [GIF (${size}px)](${user.avatarURL({ size, extension: 'gif' })})` : null,
+        isAvatarAnimated ? `• [GIF (${size}px)](${user.avatarURL({ size, extension: 'gif' })})` : null,
         `• [WebP (${size}px)](${user.avatarURL({ size, extension: 'webp' })})`,
       ]) : 'This user is using the default Discord avatar.',
       bannerUrl ? '' : null,
@@ -92,9 +101,9 @@ export class AvatarCommand extends BaseCommand {
       bannerUrl ? joinNonEmpty([
         `• [PNG (4096px)](${user.bannerURL({ size: 4096, extension: 'png' })})`,
         `• [JPG (4096px)](${user.bannerURL({ size: 4096, extension: 'jpg' })})`,
-        user.bannerURL({ extension: 'gif' }) ? `• [GIF (4096px)](${user.bannerURL({ size: 4096, extension: 'gif' })})` : null,
+        isBannerAnimated ? `• [GIF (4096px)](${user.bannerURL({ size: 4096, extension: 'gif' })})` : null,
         `• [WebP (4096px)](${user.bannerURL({ size: 4096, extension: 'webp' })})`,
-      ]) : null
+      ]) : null,
     ]);
 
     // Use simple text display with avatar as accent

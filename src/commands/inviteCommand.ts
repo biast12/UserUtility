@@ -6,7 +6,8 @@ import { DiscordInvite } from '../types/discord';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { parseInviteCode, formatDiscordTimestamp, joinNonEmpty, buildCdnUrl } from '../utils/parsers';
 import { Endpoints } from '../core/config';
-
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 /**
  * Command to look up Discord invite information
  */
@@ -57,13 +58,16 @@ export class InviteCommand extends BaseCommand {
           `Invite code \`${code}\` was not found. It may be expired, revoked, or invalid.\n\n[API URL](${Endpoints.DISCORD_API}/invites/${code}?with_counts=true&with_expiration=true)`
         );
       } else if (error.response?.status === 429) {
-        console.warn(`Rate limited when fetching invite: ${code}`);
+        logger.warning(LogArea.API, `Rate limited when fetching invite: ${code}`);
         await sendError(
           interaction,
           `Too many requests. Please try again in a moment.`
         );
       } else {
-        console.error(`Error fetching invite ${code}:`, error.message || error);
+        logger.error(
+          LogArea.API,
+          `Error fetching invite ${code}: ${error.message || error}`
+        );
         await sendError(
           interaction,
           `Failed to fetch invite information for \`${code}\`. Please check the code and try again.\n\n[API URL](${Endpoints.DISCORD_API}/invites/${code}?with_counts=true&with_expiration=true)`
@@ -85,8 +89,8 @@ export class InviteCommand extends BaseCommand {
     // Guild information
     const guildIconUrl = guild.icon ? buildCdnUrl('icons', guild.id, guild.icon) : undefined;
     const description = guild.description || profile?.description || 'No description.';
-    const memberCount = profile?.member_count || invite.approximate_member_count;
-    const onlineCount = profile?.online_count || invite.approximate_presence_count;
+    const memberCount = profile?.member_count ?? invite.approximate_member_count ?? null;
+    const onlineCount = profile?.online_count ?? invite.approximate_presence_count ?? null;
 
     // Add main guild section
     builder.addMainSection(guild.name, description, guildIconUrl, description);
@@ -94,8 +98,8 @@ export class InviteCommand extends BaseCommand {
     // Guild details section
     const guildInfo = joinNonEmpty([
       `**ID:** \`${guild.id}\``,
-      memberCount ? `**Members:** \`${memberCount}\`` : null,
-      onlineCount ? `**Online:** \`${onlineCount}\`` : null,
+      memberCount !== null ? `**Members:** \`${memberCount}\`` : '**Members:** `Hidden`',
+      onlineCount !== null ? `**Online:** \`${onlineCount}\`` : '**Online:** `Hidden`',
       (invite.uses && invite.max_uses) ? `**Uses:** \`${invite.uses}/${invite.max_uses}\`` : null,
       channel?.name ? `**Channel:** \`${channel.name}\`` : null,
       invite.expires_at ? `**Expires:** ${formatDiscordTimestamp(new Date(invite.expires_at).getTime())}` : `**Expires:** \`Never\``,

@@ -8,13 +8,15 @@ import { AvatarCommand } from '../commands/avatarCommand';
 import { TimestampCommand } from '../commands/timestampCommand';
 import { SnowflakeCommand } from '../commands/snowflakeCommand';
 import { ColorCommand } from '../commands/colorCommand';
+import { logger } from './logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Register all slash commands with Discord
  */
 async function registerCommands(): Promise<void> {
   try {
-    console.log('🔄 Starting command registration...');
+    logger.info(LogArea.NONE, 'Starting command registration...');
 
     // Get configuration
     const config = getBotConfig();
@@ -48,11 +50,15 @@ async function registerCommands(): Promise<void> {
     const registeredCommands = commandManager.getAllCommands();
     const commandList = registeredCommands.map(cmd => `  /check ${cmd.name}`);
 
-    console.log(`✅ Successfully registered ${registeredCommands.length} user utility commands:\n`);
-    commandList.forEach(cmd => console.log(cmd));
+    logger.info(LogArea.NONE, `Successfully registered ${registeredCommands.length} user utility commands`);
+    commandList.forEach(cmd => logger.info(LogArea.NONE, `  ${cmd}`));
+    logger.spacer();
 
   } catch (error) {
-    console.error('❌ Failed to register commands:', error instanceof Error ? error.message : error);
+    logger.error(
+      LogArea.STARTUP,
+      `Failed to register commands: ${error instanceof Error ? error.message : error}`
+    );
     process.exit(1);
   }
 }

@@ -1,4 +1,6 @@
 import 'dotenv/config';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 export interface BotConfig {
   token: string;
@@ -59,6 +61,6 @@ export function getBotConfig(): BotConfig {
  * Validates environment configuration on startup
  */
 export function validateConfig(): void {
-  getBotConfig(); // Will throw if invalid
-  console.log('✅ Configuration validated successfully');
+  getBotConfig();
+  logger.info(LogArea.STARTUP, 'Environment variables are set correctly.');
 }

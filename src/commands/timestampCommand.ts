@@ -3,6 +3,8 @@ import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { joinNonEmpty } from '../utils/parsers';
+import { logger } from '../utils/logger';
+import { LogArea } from '../types/logger';
 
 /**
  * Command to convert dates/times to Discord timestamps
@@ -55,7 +57,10 @@ export class TimestampCommand extends BaseCommand {
       await sendResponse(interaction, response, ephemeral);
 
     } catch (error) {
-      console.error('Error processing timestamp:', error);
+      logger.error(
+        LogArea.COMMANDS,
+        `Error processing timestamp: ${error instanceof Error ? error.message : error}`
+      );
       await sendError(
         interaction,
         'Failed to parse the date/time. Please use formats like "2024-12-25", "2024-12-25 15:30", "now", or a Unix timestamp.'
