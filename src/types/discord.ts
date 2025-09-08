@@ -44,6 +44,7 @@ export interface DiscordGuild {
   vanity_url_code: string | null;
   premium_subscription_count: number;
   premium_tier: number;
+  features: string[];
 }
 
 export interface DiscordProfile {

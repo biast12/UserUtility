@@ -30,7 +30,7 @@ export class ResponseBuilder {
   addMainSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
     
-    if (thumbnailUrl) {
+    if (thumbnailUrl && thumbnailUrl.trim() !== '') {
       const thumbnail = new ThumbnailBuilder().setURL(thumbnailUrl);
       if (thumbnailDescription) {
         thumbnail.setDescription(thumbnailDescription);
@@ -68,7 +68,7 @@ export class ResponseBuilder {
   addThumbnailSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
     
-    if (thumbnailUrl) {
+    if (thumbnailUrl && thumbnailUrl.trim() !== '') {
       const thumbnail = new ThumbnailBuilder().setURL(thumbnailUrl);
       if (thumbnailDescription) {
         thumbnail.setDescription(thumbnailDescription);
@@ -104,11 +104,13 @@ export class ResponseBuilder {
    * Add media gallery
    */
   addMediaGallery(imageUrl: string): this {
-    this.container.addMediaGalleryComponents(
-      new MediaGalleryBuilder().addItems(
-        new MediaGalleryItemBuilder().setURL(imageUrl)
-      )
-    );
+    if (imageUrl && imageUrl.trim() !== '') {
+      this.container.addMediaGalleryComponents(
+        new MediaGalleryBuilder().addItems(
+          new MediaGalleryItemBuilder().setURL(imageUrl)
+        )
+      );
+    }
     return this;
   }
 

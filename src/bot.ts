@@ -4,6 +4,10 @@ import { CommandManager } from './core/commandManager';
 import { UserCommand } from './commands/userCommand';
 import { InviteCommand } from './commands/inviteCommand';
 import { BadDomainCommand } from './commands/badDomainCommand';
+import { AvatarCommand } from './commands/avatarCommand';
+import { TimestampCommand } from './commands/timestampCommand';
+import { SnowflakeCommand } from './commands/snowflakeCommand';
+import { ColorCommand } from './commands/colorCommand';
 import { sendError } from './core/response';
 
 /**
@@ -36,6 +40,10 @@ export class UserUtilityBot {
     this.commandManager.register(new UserCommand());
     this.commandManager.register(new InviteCommand());
     this.commandManager.register(new BadDomainCommand());
+    this.commandManager.register(new AvatarCommand());
+    this.commandManager.register(new TimestampCommand());
+    this.commandManager.register(new SnowflakeCommand());
+    this.commandManager.register(new ColorCommand());
   }
 
   /**

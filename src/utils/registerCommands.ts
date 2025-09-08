@@ -4,6 +4,10 @@ import { CommandManager } from '../core/commandManager';
 import { UserCommand } from '../commands/userCommand';
 import { InviteCommand } from '../commands/inviteCommand';
 import { BadDomainCommand } from '../commands/badDomainCommand';
+import { AvatarCommand } from '../commands/avatarCommand';
+import { TimestampCommand } from '../commands/timestampCommand';
+import { SnowflakeCommand } from '../commands/snowflakeCommand';
+import { ColorCommand } from '../commands/colorCommand';
 
 /**
  * Register all slash commands with Discord
@@ -23,6 +27,10 @@ async function registerCommands(): Promise<void> {
     commandManager.register(new UserCommand());
     commandManager.register(new InviteCommand());
     commandManager.register(new BadDomainCommand());
+    commandManager.register(new AvatarCommand());
+    commandManager.register(new TimestampCommand());
+    commandManager.register(new SnowflakeCommand());
+    commandManager.register(new ColorCommand());
 
     // Build slash command
     const slashCommand = commandManager.buildSlashCommand();
