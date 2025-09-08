@@ -1,73 +1,53 @@
 import { REST, Routes } from 'discord.js';
-import { checkCommandBuilder } from './commandBuilder';
-import 'dotenv/config';
+import { getBotConfig } from '../core/config';
+import { CommandManager } from '../core/commandManager';
+import { UserCommand } from '../commands/userCommand';
+import { InviteCommand } from '../commands/inviteCommand';
+import { BadDomainCommand } from '../commands/badDomainCommand';
 
-// Get the bot token from environment variables
-const token = process.env.BOT_TOKEN;
-if (!token) {
-  console.error('❌ BOT_TOKEN is not set in the environment variables.');
-  process.exit(1);
-}
-
-// Get the client ID from env or decode from token
-let clientId = process.env.CLIENT_ID;
-if (!clientId) {
+/**
+ * Register all slash commands with Discord
+ */
+async function registerCommands(): Promise<void> {
   try {
-    const tokenPart = token.split('.')[0];
-    clientId = Buffer.from(tokenPart, 'base64').toString('utf8');
-    if (!/^\d+$/.test(clientId)) throw new Error();
-  } catch {
-    console.error('❌ CLIENT_ID is not set and could not be decoded from BOT_TOKEN.');
-    process.exit(1);
-  }
-}
-if (!clientId) {
-  console.error('❌ CLIENT_ID could not be determined.');
-  process.exit(1);
-}
+    console.log('🔄 Starting command registration...');
 
-// Use only the shared command builder for registration
-const commands = [checkCommandBuilder.toJSON()];
+    // Get configuration
+    const config = getBotConfig();
+    if (!config.clientId) {
+      throw new Error('CLIENT_ID could not be determined. Please set it in environment variables.');
+    }
 
-// Create a new REST instance for Discord API
-const rest = new REST({ version: '10' }).setToken(token);
+    // Set up command manager and register all commands
+    const commandManager = new CommandManager();
+    commandManager.register(new UserCommand());
+    commandManager.register(new InviteCommand());
+    commandManager.register(new BadDomainCommand());
 
-async function deploy() {
-  try {
-    console.log('🔄 Refreshing application (/) utility commands...');
+    // Build slash command
+    const slashCommand = commandManager.buildSlashCommand();
+    const commands = [slashCommand.toJSON()];
 
-    // Register all commands globally
+    // Create REST client and deploy commands
+    const rest = new REST({ version: '10' }).setToken(config.token);
+    
     await rest.put(
-      Routes.applicationCommands(clientId!),
+      Routes.applicationCommands(config.clientId),
       { body: commands }
     );
 
-    // Count subcommands as their own commands
-    let totalCommands = 0;
-    const commandList: string[] = [];
-    for (const c of commands) {
-      if (c.options && Array.isArray(c.options)) {
-        for (const opt of c.options) {
-          if (opt.type === 1) {
-            totalCommands++;
-            commandList.push(`  /${c.name} ${opt.name}`);
-          }
-        }
-      } else {
-        totalCommands++;
-        commandList.push(`  /${c.name}`);
-      }
-    }
+    // Count and log registered commands
+    const registeredCommands = commandManager.getAllCommands();
+    const commandList = registeredCommands.map(cmd => `  /check ${cmd.name}`);
 
-    // Log the registered commands
-    console.log(`✅ Successfully registered ${totalCommands} user utility (/) commands:\n`);
-    for (const line of commandList) {
-      console.log(line);
-    }
+    console.log(`✅ Successfully registered ${registeredCommands.length} user utility commands:\n`);
+    commandList.forEach(cmd => console.log(cmd));
+
   } catch (error) {
-    console.error('❌ Failed to register utility commands:', error instanceof Error ? error.message : error);
+    console.error('❌ Failed to register commands:', error instanceof Error ? error.message : error);
     process.exit(1);
   }
 }
 
-deploy();
+// Run registration if this file is executed directly
+registerCommands();
