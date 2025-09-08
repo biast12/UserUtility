@@ -2,7 +2,7 @@ import { SlashCommandSubcommandBuilder } from 'discord.js';
 import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
-import { parseUserId, buildCdnUrl, joinNonEmpty } from '../utils/parsers';
+import { parseUserId, joinNonEmpty } from '../utils/parsers';
 import { logger } from '../utils/logger';
 import { LogArea } from '../types/logger';
 

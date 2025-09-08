@@ -15,11 +15,6 @@ export interface CommandOptions {
   ephemeral?: boolean;
 }
 
-export interface BaseCommand {
-  data: SlashCommandBuilder;
-  execute(context: CommandContext): Promise<void>;
-}
-
 // Response types
 export interface ComponentResponse {
   components: any[];
