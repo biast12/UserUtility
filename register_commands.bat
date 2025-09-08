@@ -1,18 +1,20 @@
-@echo off
-echo Starting Discord bot command registration...
-echo.
+@ECHO OFF
+ECHO Starting Discord User Utility Bot command registration...
+ECHO.
 
 npm run register
 
-if %errorlevel% equ 0 (
-    echo.
-    echo ✅ Registration completed successfully!
-) else (
-    echo.
-    echo ❌ Registration failed with error code %errorlevel%
-    echo This is normal if BOT_TOKEN is not configured in .env
+IF %ERRORLEVEL% EQU 0 (
+    ECHO.
+    ECHO ✅ Registration completed successfully!
+    ECHO Commands have been registered with Discord.
+) ELSE (
+    ECHO.
+    ECHO ❌ Registration failed with error code %ERRORLEVEL%
+    ECHO This is normal if BOT_TOKEN is not configured in .env file.
+    ECHO Please check your environment configuration.
 )
 
-echo.
-echo Press any key to close this window...
-pause > nul
+ECHO.
+ECHO Press any key to close this window...
+PAUSE > NUL
