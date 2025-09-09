@@ -1,48 +1,114 @@
-# UserUtility Bot
+# 🔧 UserUtility Bot
 
-UserUtility is a general-purpose Discord bot focused on providing a wide range of user-centric utilities and information tools. Whether you want to look up user info, check invites, verify domains, or access other helpful features, UserUtility is designed to make your Discord experience easier and more informative.
+**Transform your Discord experience with the most comprehensive user utility bot available!**
+
+UserUtility is the ultimate Discord utility bot providing essential information and conversion tools. Whether you're looking up details, converting data formats, or accessing Discord's hidden information, UserUtility transforms complex tasks into simple commands that enhance your Discord experience.
+
+## ✨ Why Choose UserUtility?
+
+### 🚀 **Instant Information Access**
+
+- Get detailed user profiles, avatars, and banners in seconds
+- Analyze Discord invites with comprehensive server insights
+- Decode snowflake IDs to reveal creation dates and technical details
+- Convert timestamps to Discord's native formatting
+
+### 🎨 **Creative Tools**
+
+- Advanced color converter with multiple formats (HEX, RGB, HSL, Discord embed colors)
+- High-resolution avatar and banner downloads in multiple formats
+- Visual color previews with usage examples
+
+### 💼 **Professional Features**
+
+- Clean, ephemeral responses that don't clutter your channels
+- Modern Discord UI with rich embeds and media galleries
+- Developer-friendly with technical details and API information
 
 ---
 
-## Features
+## 🎯 Core Features
 
-- Access a variety of user-focused utilities and information commands.
-- Look up Discord users, invites, and domains with simple slash commands.
-- Designed for flexibility and future expansion—new user utilities are added regularly.
-- Clean, modern Discord UI with ephemeral and public responses.
-- Easy to use and open source.
+### 👤 **User Analysis** (`/check user`)
+
+- Complete user profiles with usernames, global names, and IDs
+- Account creation dates and age calculations
+- Discord badges and verification status
+- Bot detection and verification indicators
+- Profile effects and collectibles information
+
+### 🖼️ **Avatar & Banner Tools** (`/check avatar`)
+
+- Download avatars in sizes up to 4096x4096px
+- Multiple formats: PNG, JPG, WebP, and animated GIF support
+- High-resolution banner downloads
+- Instant preview and download links
+
+### 🔗 **Invite Inspector** (`/check invite`)
+
+- Detailed server information from invite codes
+- Member counts and online statistics
+- Server descriptions and verification levels
+- Inviter information and vanity URL detection
+- Expiration tracking and boost counts
+
+### 🎨 **Color Converter** (`/check color`)
+
+- Convert between HEX, RGB, HSL, and decimal formats
+- Discord embed color codes
+- Role color decimal values
+- Color name recognition and brightness analysis
+- Usage examples for developers
+
+### ❄️ **Snowflake Decoder** (`/check snowflake`)
+
+- Decode any Discord ID to reveal creation timestamp
+- Technical breakdown with worker and process IDs
+- Binary representation and increment values
+- Object type identification and age calculation
+
+### ⏰ **Timestamp Generator** (`/check timestamp`)
+
+- Convert dates to Discord timestamp format
+- All Discord timestamp styles (relative, short, long)
+- Natural language parsing ("5 minutes ago", "tomorrow")
+- Unix timestamp conversion
+
+### 🛡️ **Domain Security** (`/check baddomain`)
+
+- Check domains against Discord bad-domains endpoint
 
 ---
 
-## Getting Started
+## 🎉 Get Started
 
-You can use UserUtility in two ways:
+### **Option 1: Invite the Bot (Recommended)**
 
-### 1. Invite the Bot
+### **[📥 Invite UserUtility to Your Server](https://discord.com/oauth2/authorize?client_id=1390752371998457947)**
 
-[Invite UserUtility](https://discord.com/oauth2/authorize?client_id=1390752371998457947)
+*Ready to use in seconds - no setup required!*
 
 ---
 
-### 2. Self-Hosting
+### **Option 2: Self-Hosting**
 
-If you prefer to run your own instance, follow these steps:
+If you prefer to run your own instance:
 
 1. **Clone the repository:**
 
-   ```sh
+   ```bash
    git clone https://github.com/biast12/userUtility
    cd userUtility
    ```
 
 2. **Install dependencies:**
 
-   ```sh
+   ```bash
    npm install
    ```
 
 3. **Set up your environment variables:**
-   - Copy `.env.example` to `.env` and fill in your bot token.
+   - Copy `.env.example` to `.env` and fill in your bot token
 
    ```env
    BOT_TOKEN=your_discord_bot_token
@@ -51,26 +117,20 @@ If you prefer to run your own instance, follow these steps:
 
 4. **Register the slash commands:**
 
-   ```sh
+   ```bash
    npm run register
    ```
 
 5. **Start the bot:**
 
-   ```sh
+   ```bash
    npm run start
    ```
 
 ---
 
-## License
+## 📞 Need Help?
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+**Got questions? Have a feature requests? Found an issue?**
 
----
-
-## Contributing
-
-Contributions and suggestions are welcome! Feel free to open issues or pull requests to help improve UserUtility.
-
----
+Then please join our [support server](https://biast12.com/botsupport)
