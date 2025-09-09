@@ -1,13 +1,12 @@
 @ECHO OFF
 SETLOCAL ENABLEDELAYEDEXPANSION
 
-REM ============================================================================
-REM UserUtility Bot - Discord Command Registration
-REM Registers and synchronizes slash commands with Discord API
-REM ============================================================================
+REM =====================================================
+REM UserUtility Bot - Bot Launcher
+REM =====================================================
 
 REM Set console title for better identification
-TITLE UserUtility Bot - Discord Command Registration
+TITLE UserUtility Bot - Bot Launcher
 
 REM Check if Node.js is installed and accessible
 node --version >NUL 2>&1
@@ -46,17 +45,26 @@ IF NOT EXIST "dist" (
     )
 )
 
-REM Run the command registration
-npm run register
+ECHO.
+ECHO Launching bot...
+ECHO =====================================================
+ECHO.
 
-IF %ERRORLEVEL% EQU 0 (
+REM Run the bot
+npm run start
+
+REM Check if bot crashed
+if %ERRORLEVEL% neq 0 (
     ECHO.
-    ECHO [SUCCESS] Registration completed successfully!
-    ECHO Commands have been registered with Discord.
-) ELSE (
+    ECHO =====================================================
+    ECHO [ERROR] Bot crashed with error code: %ERRORLEVEL%
+    ECHO =====================================================
+    PAUSE
+) else (
     ECHO.
-    ECHO [ERROR] Registration failed with error code %ERRORLEVEL%
-    ECHO Please check your bot token and environment configuration.
+    ECHO =====================================================
+    ECHO Bot stopped normally.
+    ECHO =====================================================
 )
 
 ECHO.
