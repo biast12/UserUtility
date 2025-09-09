@@ -11,7 +11,7 @@ import { LogArea } from '../types/logger';
 
 export class BadDomainCommand extends BaseCommand {
   public readonly name = 'baddomain';
-  public readonly description = 'Check if a domain is flagged as malicious';
+  public readonly description = 'Check if a domain is flagged as malicious by Discord';
 
   public buildCommand(): SlashCommandSubcommandBuilder {
     return this.addEphemeralOption(
