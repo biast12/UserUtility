@@ -53,7 +53,7 @@ export class BotLogger {
   }
 
   private formatMessage(level: LogLevel, area: LogArea, message: string): string {
-    const timestamp = new Date().toLocaleTimeString('en-US', { 
+    const timestamp = new Date().toLocaleTimeString('en-US', {
       hour12: false,
       timeZone: 'UTC'
     });
@@ -124,7 +124,7 @@ export class BotLogger {
 
   public spacer(char: string = '=', length?: number, color?: LogLevel): void {
     let terminalWidth = length;
-    
+
     if (!terminalWidth) {
       try {
         terminalWidth = process.stdout.columns || 100;
@@ -136,7 +136,7 @@ export class BotLogger {
     const colorCode = color ? this.getColor(color) : '\x1b[36m'; // Cyan by default
     const reset = this.resetColor();
     const output = `${colorCode}${char.repeat(terminalWidth)}${reset}`;
-    
+
     try {
       console.log(output);
     } catch {

@@ -43,7 +43,7 @@ export class BadDomainCommand extends BaseCommand {
     try {
       const response = await axios.get(Endpoints.BAD_DOMAINS);
       const badDomainHashes = new Set(response.data as string[]);
-      
+
       const domainHash = createHash('sha256').update(hostname!).digest('hex');
       const isBadDomain = badDomainHashes.has(domainHash);
       const message = isBadDomain

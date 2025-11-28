@@ -9,7 +9,7 @@ export function parseUserId(input: string): UserIdParseResult {
       wasMention: true
     };
   }
-  
+
   return {
     userId: input,
     wasMention: false
@@ -24,7 +24,7 @@ export function parseInviteCode(input: string): InviteCodeParseResult {
       wasUrl: true
     };
   }
-  
+
   return {
     code: input,
     wasUrl: false
@@ -40,7 +40,7 @@ export function validateDomain(input: string): DomainValidationResult {
   try {
     const url = new URL(domain);
     const hostname = url.hostname;
-    
+
     if (!hostname.includes('.') || /\s/.test(hostname)) {
       return {
         isValid: false,

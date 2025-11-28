@@ -70,7 +70,7 @@ export class BadgeService {
     const badges = flags
       .map(flag => this.badgeEmojiMap[flag])
       .filter(Boolean);
-    
+
     return badges.join(' ');
   }
 

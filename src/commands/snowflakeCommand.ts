@@ -31,7 +31,7 @@ export class SnowflakeCommand extends BaseCommand {
 
     try {
       const cleanId = this.extractId(idInput);
-      
+
       if (!this.isValidSnowflake(cleanId)) {
         await sendError(interaction, 'Invalid Discord ID format. Please provide a valid Discord snowflake ID.');
         return;
@@ -65,7 +65,7 @@ export class SnowflakeCommand extends BaseCommand {
     const discordEpoch = BigInt(1420070400000);
     const timestamp = (snowflake >> 22n) + discordEpoch;
     const now = BigInt(Date.now());
-    
+
     return timestamp > discordEpoch && timestamp <= now;
   }
 
@@ -83,7 +83,7 @@ export class SnowflakeCommand extends BaseCommand {
     const processId = Number((snowflake & 0x1F000n) >> 12n);
     const increment = Number(snowflake & 0xFFFn);
     const binary = snowflake.toString(2).padStart(64, '0');
-    
+
     return { timestamp, workerId, processId, increment, binary };
   }
 
@@ -92,11 +92,11 @@ export class SnowflakeCommand extends BaseCommand {
     const timestamp = Number((snowflake >> 22n) + BigInt(1420070400000));
     const date = new Date(timestamp);
     const year = date.getFullYear();
-    
+
     if (year < 2016) return 'Early Discord Object';
     if (year < 2017) return 'User, Guild, or Channel';
     if (year < 2019) return 'Message, User, or Guild';
-    
+
     return 'Unknown Discord Object';
   }
 
@@ -105,7 +105,7 @@ export class SnowflakeCommand extends BaseCommand {
     const decoded = this.decodeSnowflake(id);
     const creationDate = new Date(decoded.timestamp);
     const idType = this.getIdType(id);
-    
+
     const allInfo = joinNonEmpty([
       `**ID:** \`${id}\``,
       `**Type:** \`${idType}\``,
@@ -122,7 +122,7 @@ export class SnowflakeCommand extends BaseCommand {
       '**Snowflake Format:**',
       '\`TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT WWWWW PPPPP IIIIIIIIIIII\`',
       '• **T (42 bits):** Timestamp since Discord epoch',
-      '• **W (5 bits):** Worker ID (0-31)',  
+      '• **W (5 bits):** Worker ID (0-31)',
       '• **P (5 bits):** Process ID (0-31)',
       '• **I (12 bits):** Increment (0-4095)',
       '',

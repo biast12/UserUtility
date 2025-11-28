@@ -40,7 +40,7 @@ async function registerCommands(): Promise<void> {
 
     // Create REST client and deploy commands
     const rest = new REST({ version: '10' }).setToken(config.token);
-    
+
     await rest.put(
       Routes.applicationCommands(config.clientId),
       { body: commands }

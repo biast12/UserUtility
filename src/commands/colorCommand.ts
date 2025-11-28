@@ -160,11 +160,11 @@ export class ColorCommand extends BaseCommand {
 
     for (const color of colors) {
       const distance = Math.sqrt(
-        Math.pow(r - color.r, 2) + 
-        Math.pow(g - color.g, 2) + 
+        Math.pow(r - color.r, 2) +
+        Math.pow(g - color.g, 2) +
         Math.pow(b - color.b, 2)
       );
-      
+
       if (distance < minDistance) {
         minDistance = distance;
         closestColor = color;
@@ -179,7 +179,7 @@ export class ColorCommand extends BaseCommand {
     const { r, g, b } = color;
     const hsl = this.rgbToHsl(r, g, b);
     const colorName = this.getColorName(r, g, b);
-    
+
     const allInfo = joinNonEmpty([
       `**Color Name:** \`${colorName}\``,
       `**RGB Values:** \`${r}, ${g}, ${b}\``,
@@ -215,7 +215,7 @@ export class ColorCommand extends BaseCommand {
   public async handleAutocomplete(context: AutocompleteContext): Promise<void> {
     const interaction = context.interaction;
     const focusedOption = interaction.options.getFocused();
-    
+
     // Common color suggestions
     const colorSuggestions = [
       { name: 'Discord Blurple', value: '#5865f2' },
@@ -238,7 +238,7 @@ export class ColorCommand extends BaseCommand {
 
     // Filter suggestions based on user input
     const filtered = colorSuggestions
-      .filter(color => 
+      .filter(color =>
         color.name.toLowerCase().includes(focusedOption.toLowerCase()) ||
         color.value.toLowerCase().includes(focusedOption.toLowerCase())
       )

@@ -46,9 +46,9 @@ export class AvatarCommand extends BaseCommand {
 
     try {
       const { userId } = parseUserId(userIdInput);
-      
+
       const user = await client.users.fetch(userId, { cache: false, force: true });
-      
+
       const response = this.buildAvatarResponse(user, size);
       await sendResponse(interaction, response, ephemeral);
 
@@ -66,10 +66,10 @@ export class AvatarCommand extends BaseCommand {
 
   private buildAvatarResponse(user: any, size: number): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
-    
+
     const avatarUrl = user.avatarURL({ size, extension: 'png', forceStatic: false });
     const bannerUrl = user.bannerURL({ size: 4096, extension: 'png' });
-    
+
     const isAvatarAnimated = user.avatar && user.avatar.startsWith('a_');
     const isBannerAnimated = user.banner && user.banner.startsWith('a_');
     const allInfo = joinNonEmpty([

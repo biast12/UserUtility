@@ -18,7 +18,7 @@ export class UserUtilityBot {
 
   constructor() {
     validateConfig();
-    
+
     logger.configure({
       consoleEnabled: true,
       minLevel: LogLevel.INFO
@@ -67,12 +67,12 @@ export class UserUtilityBot {
     if (!interaction.isChatInputCommand()) return;
 
     const { commandName } = interaction;
-    
+
     if (commandName !== 'check') return;
 
     try {
       const subcommandName = interaction.options.getSubcommand();
-      
+
       if (!this.commandManager.hasCommand(subcommandName)) {
         await sendError(interaction, 'Unknown subcommand. Please try again.');
         return;
@@ -95,7 +95,7 @@ export class UserUtilityBot {
   private async handleAutocomplete(interaction: AutocompleteInteraction): Promise<void> {
     try {
       const { commandName } = interaction;
-      
+
       if (commandName !== 'check') return;
 
       const subcommandName = interaction.options.getSubcommand();

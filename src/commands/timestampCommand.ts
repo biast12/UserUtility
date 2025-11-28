@@ -74,7 +74,7 @@ export class TimestampCommand extends BaseCommand {
       const amount = parseInt(relativeMatch[1]);
       const unit = relativeMatch[2];
       const isAgo = cleaned.includes('ago');
-      
+
       let milliseconds = 0;
       switch (unit) {
         case 'minute':
@@ -122,9 +122,9 @@ export class TimestampCommand extends BaseCommand {
 
   private buildTimestampResponse(timestamp: number, input?: string): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
-    
+
     const date = new Date(timestamp * 1000);
-    
+
     const allInfo = joinNonEmpty([
       input ? `**Input:** \`${input}\`` : null,
       `**Unix Timestamp:** \`${timestamp}\``,

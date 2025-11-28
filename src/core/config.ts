@@ -44,7 +44,7 @@ export function getBotConfig(): BotConfig {
       if (!/^\d+$/.test(clientId)) {
         clientId = undefined;
       }
-    } catch {}
+    } catch { }
   }
 
   return { token, clientId };

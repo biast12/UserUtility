@@ -36,13 +36,13 @@ export class InviteCommand extends BaseCommand {
         `${Endpoints.DISCORD_API}/invites/${code}?with_counts=true&with_expiration=true`
       );
       const inviteData: APIInvite = response.data;
-      
+
       const inviteResponse = this.buildInviteResponse(inviteData, code);
       await sendResponse(interaction, inviteResponse, ephemeral);
 
     } catch (error: any) {
       const { code } = parseInviteCode(codeInput);
-      
+
       if (error.response?.status === 404) {
         await sendError(
           interaction,

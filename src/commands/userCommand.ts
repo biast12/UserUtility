@@ -32,9 +32,9 @@ export class UserCommand extends BaseCommand {
 
     try {
       const { userId } = parseUserId(userIdInput);
-      
+
       const user: User = await client.users.fetch(userId, { force: true });
-      
+
       const response = this.buildUserResponse(user);
       await sendResponse(interaction, response, ephemeral);
 
@@ -52,7 +52,7 @@ export class UserCommand extends BaseCommand {
 
   private buildUserResponse(user: User): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
-    
+
     const avatarUrl = user.avatarURL({ size: 512 }) || user.defaultAvatarURL;
     const flags = user.flags?.toArray() || [];
     const badgeService = BadgeService.getInstance();
@@ -101,7 +101,6 @@ export class UserCommand extends BaseCommand {
 
     if (user.bot) {
       const isVerified = flags.some(flag => flag.toString() === 'VerifiedBot');
-      return isVerified 
       return isVerified
         ? '✅ **This user is a verified bot**'
         : '🤖 **This user is a bot**';

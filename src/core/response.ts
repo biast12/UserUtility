@@ -22,7 +22,7 @@ export class ResponseBuilder {
 
   addMainSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
-    
+
     if (thumbnailUrl && thumbnailUrl.trim() !== '') {
       const thumbnail = new ThumbnailBuilder().setURL(thumbnailUrl);
       if (thumbnailDescription) {
@@ -54,7 +54,7 @@ export class ResponseBuilder {
 
   addThumbnailSection(title: string, content: string, thumbnailUrl?: string, thumbnailDescription?: string): this {
     const section = new SectionBuilder();
-    
+
     if (thumbnailUrl && thumbnailUrl.trim() !== '') {
       const thumbnail = new ThumbnailBuilder().setURL(thumbnailUrl);
       if (thumbnailDescription) {
@@ -73,7 +73,7 @@ export class ResponseBuilder {
         new SeparatorBuilder().setSpacing(SeparatorSpacingSize.Small).setDivider(true)
       )
       .addSectionComponents(section);
-    
+
     return this;
   }
 
