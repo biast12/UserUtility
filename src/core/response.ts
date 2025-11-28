@@ -95,10 +95,25 @@ export class ResponseBuilder {
     return this;
   }
 
+  addMediaGalleryMultiple(imageUrls: string[]): this {
+    if (imageUrls.length > 0) {
+      const gallery = new MediaGalleryBuilder();
+
+      for (const url of imageUrls) {
+        if (url && url.trim() !== '') {
+          gallery.addItems(new MediaGalleryItemBuilder().setURL(url));
+        }
+      }
+
+      this.container.addMediaGalleryComponents(gallery);
+    }
+    return this;
+  }
+
   build(): ComponentResponse {
     return {
       components: [this.container],
-      flags: [MessageFlags.IsComponentsV2]
+      flags: MessageFlags.IsComponentsV2
     };
   }
 }
@@ -131,14 +146,15 @@ export async function sendResponse(
   response: ComponentResponse,
   ephemeral: boolean = false
 ): Promise<void> {
-  const flags = ephemeral 
-    ? [...(response.flags || []), MessageFlags.Ephemeral]
-    : response.flags;
-
-  const payload = {
+  const payload: any = {
     components: response.components,
-    flags
+    flags: response.flags
   };
+
+  if (ephemeral) {
+    // Combine flags as an array when ephemeral is true
+    payload.flags = response.flags ? [response.flags, MessageFlags.Ephemeral] : MessageFlags.Ephemeral;
+  }
 
   if (interaction.replied || interaction.deferred) {
     await interaction.followUp(payload);

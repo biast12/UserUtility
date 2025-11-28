@@ -1,4 +1,4 @@
-import { SlashCommandSubcommandBuilder, User } from 'discord.js';
+import { SlashCommandSubcommandBuilder, User, UserFlagsString } from 'discord.js';
 import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
@@ -65,7 +65,9 @@ export class UserCommand extends BaseCommand {
       `**Account Age:** ${formatDiscordTimestamp(user.createdTimestamp, 'R')}`,
       flags.length > 0 ? `**Badges:** ${badgeService.parseBadges(flags.map(flag => flag.toString()))}` : null,
       this.getUserTypeInfo(user, flags),
-      this.getUserCollectiblesInfo(user)
+      this.getUserAvatarDecorationInfo(user),
+      this.getUserCollectiblesInfo(user),
+      this.getUserPrimaryGuildInfo(user)
     ]);
 
     builder.addMainSection(
@@ -73,45 +75,97 @@ export class UserCommand extends BaseCommand {
       basicInfo,
       avatarUrl
     );
+
+    // Add banner if available
     const bannerUrl = user.bannerURL({ size: 1024 });
     if (bannerUrl) {
       builder.addMediaGallery(bannerUrl);
     }
 
+    // Add avatar decoration and guild tag badge in the same row if available
+    const avatarDecorationUrl = user.avatarDecorationURL();
+    const guildTagBadgeUrl = user.guildTagBadgeURL();
+
+    if (avatarDecorationUrl || guildTagBadgeUrl) {
+      const decorationUrls = [avatarDecorationUrl, guildTagBadgeUrl].filter(Boolean) as string[];
+      builder.addMediaGalleryMultiple(decorationUrls);
+    }
+
     return builder.build();
   }
 
-  private getUserTypeInfo(user: User, flags: any[]): string | null {
+  private getUserTypeInfo(user: User, flags: UserFlagsString[]): string | null {
     if (user.system) {
       return '🤖 **This user is a system account**';
     }
-    
+
     if (user.bot) {
       const isVerified = flags.some(flag => flag.toString() === 'VerifiedBot');
       return isVerified 
+      return isVerified
         ? '✅ **This user is a verified bot**'
         : '🤖 **This user is a bot**';
     }
-    
+
+    return null;
+  }
+
+  private getUserAvatarDecorationInfo(user: User): string | null {
+    try {
+      if (user.avatarDecorationData) {
+        const { skuId } = user.avatarDecorationData;
+        return `**Avatar Decoration:** SKU \`${skuId}\``;
+      }
+    } catch (error) {
+      logger.error(
+        LogArea.COMMANDS,
+        `Error reading avatar decoration: ${error instanceof Error ? error.message : error}`
+      );
+    }
+
     return null;
   }
 
   private getUserCollectiblesInfo(user: User): string | null {
     try {
-      const collectibles = (user as any).collectibles;
-      if (collectibles && collectibles.length > 0) {
-        const collectibleNames = collectibles.map((item: any) => {
-          if (item.sku_id) {
-            return item.sku_id;
-          }
-          return 'Unknown Collectible';
-        });
-        
-        const collectibleCount = collectibles.length;
-        return `✨ **Profile Effects:** ${collectibleCount} active ${collectibleCount === 1 ? 'effect' : 'effects'}`;
+      if (user.collectibles?.nameplate) {
+        const { nameplate } = user.collectibles;
+        return `**Profile Decoration:** ${nameplate.label || 'Custom Nameplate'}`;
       }
-    } catch (error) {}
-    
+    } catch (error) {
+      logger.error(
+        LogArea.COMMANDS,
+        `Error reading collectibles: ${error instanceof Error ? error.message : error}`
+      );
+    }
+
+    return null;
+  }
+
+  private getUserPrimaryGuildInfo(user: User): string | null {
+    try {
+      if (user.primaryGuild) {
+        const parts: string[] = [];
+
+        if (user.primaryGuild.tag) {
+          parts.push(`\`${user.primaryGuild.tag}\``);
+        }
+
+        if (user.primaryGuild.badge) {
+          parts.push(`Badge: ${user.primaryGuild.badge}`);
+        }
+
+        if (parts.length > 0) {
+          return `**Primary Guild:** ${parts.join(' • ')}`;
+        }
+      }
+    } catch (error) {
+      logger.error(
+        LogArea.COMMANDS,
+        `Error reading primary guild: ${error instanceof Error ? error.message : error}`
+      );
+    }
+
     return null;
   }
 }

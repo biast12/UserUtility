@@ -1,4 +1,13 @@
-import { SlashCommandBuilder, Client, ChatInputCommandInteraction, AutocompleteInteraction } from 'discord.js';
+import {
+  SlashCommandBuilder,
+  Client,
+  ChatInputCommandInteraction,
+  AutocompleteInteraction,
+  ContainerBuilder,
+  MessageFlags,
+  BitFieldResolvable,
+  MessageFlagsString
+} from 'discord.js';
 
 // Core command interfaces
 export interface CommandContext {
@@ -17,8 +26,16 @@ export interface CommandOptions {
 
 // Response types
 export interface ComponentResponse {
-  components: any[];
-  flags?: number[];
+  components: ContainerBuilder[];
+  flags?:
+  | BitFieldResolvable<
+    Extract<MessageFlagsString, 'Ephemeral' | 'SuppressEmbeds' | 'SuppressNotifications' | 'IsComponentsV2'>,
+    | MessageFlags.Ephemeral
+    | MessageFlags.SuppressEmbeds
+    | MessageFlags.SuppressNotifications
+    | MessageFlags.IsComponentsV2
+  >
+  | undefined;
 }
 
 export interface ErrorResponse extends ComponentResponse {
@@ -55,3 +72,40 @@ export interface InviteCodeParseResult {
   code: string;
   wasUrl: boolean;
 }
+
+// Re-export commonly used discord.js types for convenience
+export type {
+  // User-related types
+  Collectibles,
+  NameplateData,
+  UserPrimaryGuild,
+  AvatarDecorationData,
+  UserFlagsString,
+  UserFlagsBitField,
+
+  // Message-related types
+  Message,
+  MessageFlagsString,
+  MessageFlagsBitField,
+  MessageType,
+  MessageCall,
+
+  // Guild-related types
+  Guild,
+  GuildMember,
+
+  // Poll types
+  Poll,
+  PollAnswer,
+
+  // Emoji types
+  ApplicationEmoji,
+
+  // Attachment types
+  Attachment
+} from 'discord.js';
+
+// Re-export discord-api-types for API structures
+export type { APIInvite } from 'discord-api-types/v10';
+// Export InviteType enum as both type and value
+export { InviteType } from 'discord-api-types/v10';

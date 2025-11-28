@@ -1,8 +1,7 @@
 import { SlashCommandSubcommandBuilder } from 'discord.js';
-import type { APIInvite } from 'discord-api-types/v10';
 import axios from 'axios';
 import { BaseCommand } from '../core/command';
-import { CommandContext } from '../types';
+import { CommandContext, APIInvite, InviteType } from '../types';
 import { ResponseBuilder, sendResponse, sendError } from '../core/response';
 import { parseInviteCode, formatDiscordTimestamp, joinNonEmpty, buildCdnUrl } from '../utils/parsers';
 import { Endpoints } from '../core/config';
@@ -70,6 +69,28 @@ export class InviteCommand extends BaseCommand {
 
   private buildInviteResponse(invite: APIInvite, code: string): ReturnType<ResponseBuilder['build']> {
     const builder = new ResponseBuilder();
+
+    // Detect invite type (PR #10888 - type-specific invite classes)
+    const inviteType = invite.type ?? InviteType.Guild;
+
+    switch (inviteType) {
+      case InviteType.Guild:
+        return this.buildGuildInviteResponse(invite, code);
+      case InviteType.GroupDM:
+        return this.buildGroupDMInviteResponse(invite, code);
+      case InviteType.Friend:
+        builder.addText('👥 **Friend Invite**');
+        builder.addText(`This is a friend invite link. Code: \`${code}\``);
+        return builder.build();
+      default:
+        builder.addText('❓ **Unknown Invite Type**');
+        builder.addText(`Code: \`${code}\``);
+        return builder.build();
+    }
+  }
+
+  private buildGuildInviteResponse(invite: APIInvite, code: string): ReturnType<ResponseBuilder['build']> {
+    const builder = new ResponseBuilder();
     const { guild, channel, inviter } = invite;
 
     if (!guild) {
@@ -85,6 +106,7 @@ export class InviteCommand extends BaseCommand {
     builder.addMainSection(guild.name, description, guildIconUrl, description);
     const guildInfo = joinNonEmpty([
       `**ID:** \`${guild.id}\``,
+      `**Type:** Guild Invite`,
       memberCount !== null ? `**Members:** \`${memberCount}\`` : '**Members:** `Hidden`',
       onlineCount !== null ? `**Online:** \`${onlineCount}\`` : '**Online:** `Hidden`',
       channel?.name ? `**Channel:** \`${channel.name}\`` : null,
@@ -110,11 +132,49 @@ export class InviteCommand extends BaseCommand {
 
     builder.addText(`**API URL:** ${Endpoints.DISCORD_API}/invites/${code}?with_counts=true&with_expiration=true`);
     const mediaUrl = guild?.banner ? buildCdnUrl('banners', guild.id, guild.banner, 4096) :
-                     guild?.splash ? buildCdnUrl('splashes', guild.id, guild.splash, 4096) : null;
-    
+      guild?.splash ? buildCdnUrl('splashes', guild.id, guild.splash, 4096) : null;
+
     if (mediaUrl) {
       builder.addMediaGallery(mediaUrl);
     }
+
+    return builder.build();
+  }
+
+  private buildGroupDMInviteResponse(invite: APIInvite, code: string): ReturnType<ResponseBuilder['build']> {
+    const builder = new ResponseBuilder();
+    const { channel, inviter } = invite;
+
+    builder.addMainSection(
+      'Group DM Invite',
+      'This invite is for a Group Direct Message.',
+      undefined
+    );
+
+    const channelInfo = joinNonEmpty([
+      `**Code:** \`${code}\``,
+      `**Type:** Group DM`,
+      channel?.name ? `**Channel Name:** \`${channel.name}\`` : null,
+      channel?.id ? `**Channel ID:** \`${channel.id}\`` : null,
+      invite.expires_at ? `**Expires:** ${formatDiscordTimestamp(new Date(invite.expires_at).getTime())}` : `**Expires:** \`Never\``,
+      `**Invite:** https://discord.gg/${code}`
+    ]);
+
+    builder.addTextSection('Channel', channelInfo);
+
+    if (inviter) {
+      const inviterAvatarUrl = inviter.avatar ? buildCdnUrl('avatars', inviter.id, inviter.avatar) : undefined;
+      const inviterInfo = joinNonEmpty([
+        `**ID:** \`${inviter.id}\``,
+        `**Username:** \`${inviter.username}\``,
+        inviter.global_name ? `**Global Name:** \`${inviter.global_name}\`` : null,
+        `**Mention:** <@${inviter.id}>`
+      ]);
+
+      builder.addThumbnailSection('Inviter', inviterInfo, inviterAvatarUrl, inviter.global_name || '');
+    }
+
+    builder.addText(`**API URL:** ${Endpoints.DISCORD_API}/invites/${code}?with_counts=true&with_expiration=true`);
 
     return builder.build();
   }
