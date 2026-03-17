@@ -9,6 +9,7 @@ import { TimestampCommand } from './commands/timestampCommand';
 import { SnowflakeCommand } from './commands/snowflakeCommand';
 import { ColorCommand } from './commands/colorCommand';
 import { CopyMessageDataCommand } from './commands/context/copyMessageDataCommand';
+import { CopyUserDataCommand } from './commands/context/copyUserDataCommand';
 import { sendError } from './core/response';
 import { logger } from './utils/logger';
 import { LogArea, LogLevel } from './types/logger';
@@ -45,6 +46,7 @@ export class UserUtilityBot {
     this.commandManager.register(new ColorCommand());
 
     this.commandManager.registerContextMenu(new CopyMessageDataCommand());
+    this.commandManager.registerContextMenu(new CopyUserDataCommand());
   }
 
   private setupEventHandlers(): void {

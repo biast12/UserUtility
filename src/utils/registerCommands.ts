@@ -9,6 +9,7 @@ import { TimestampCommand } from '../commands/timestampCommand';
 import { SnowflakeCommand } from '../commands/snowflakeCommand';
 import { ColorCommand } from '../commands/colorCommand';
 import { CopyMessageDataCommand } from '../commands/context/copyMessageDataCommand';
+import { CopyUserDataCommand } from '../commands/context/copyUserDataCommand';
 import { logger } from './logger';
 import { LogArea } from '../types/logger';
 
@@ -36,6 +37,7 @@ async function registerCommands(): Promise<void> {
     commandManager.register(new ColorCommand());
 
     commandManager.registerContextMenu(new CopyMessageDataCommand());
+    commandManager.registerContextMenu(new CopyUserDataCommand());
 
     // Build all commands
     const slashCommand = commandManager.buildSlashCommand();
