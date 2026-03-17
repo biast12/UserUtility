@@ -4,6 +4,8 @@
 
 UserUtility is the ultimate Discord utility bot providing essential information and conversion tools. Whether you're looking up details, converting data formats, or accessing Discord's hidden information, UserUtility transforms complex tasks into simple commands that enhance your Discord experience.
 
+> **User App** — UserUtility is installed per-user, not per-server. It works in DMs, group DMs, and any server you're in.
+
 ## ✨ Why Choose UserUtility?
 
 ### 🚀 **Instant Information Access**
@@ -23,11 +25,13 @@ UserUtility is the ultimate Discord utility bot providing essential information 
 
 - Clean, ephemeral responses that don't clutter your channels
 - Modern Discord UI with rich embeds and media galleries
-- Developer-friendly with technical details and API information
+- Developer-friendly raw data export via context menu commands
 
 ---
 
-## 🎯 Core Features
+## 🎯 Slash Commands
+
+All slash commands are grouped under `/check`.
 
 ### 👤 **User Analysis** (`/check user`)
 
@@ -55,8 +59,7 @@ UserUtility is the ultimate Discord utility bot providing essential information 
 ### 🎨 **Color Converter** (`/check color`)
 
 - Convert between HEX, RGB, HSL, and decimal formats
-- Discord embed color codes
-- Role color decimal values
+- Discord embed color codes and role color decimal values
 - Color name recognition and brightness analysis
 - Usage examples for developers
 
@@ -76,21 +79,39 @@ UserUtility is the ultimate Discord utility bot providing essential information 
 
 ### 🛡️ **Domain Security** (`/check baddomain`)
 
-- Check domains against Discord bad-domains endpoint
+- Check domains against Discord's bad-domains list
+
+---
+
+## 🖱️ Context Menu Commands
+
+Right-click any message or user and select **Apps** to access these commands. All responses are ephemeral — only you can see them.
+
+### Right-click a Message
+
+| Command | Description | Available |
+|---------|-------------|-----------|
+| **Copy Message Data** | Full raw message object as a `.json` file | Everywhere |
+| **Copy Author Data** | Raw user object of the message author as a `.json` file | Everywhere |
+
+### Right-click a User
+
+| Command | Description | Available |
+|---------|-------------|-----------|
+| **Copy User Data** | Full raw user object as a `.json` file | Everywhere |
+| **Copy Member Data** | Raw guild member object (roles, nickname, join date, permissions) as a `.json` file | Servers only |
 
 ---
 
 ## 🎉 Get Started
 
-### **Option 1: Invite the Bot (Recommended)**
+### **[📥 Add UserUtility to Your Account](https://discord.com/oauth2/authorize?client_id=1390752371998457947)**
 
-### **[📥 Invite UserUtility to Your Server](https://discord.com/oauth2/authorize?client_id=1390752371998457947)**
-
-*Ready to use in seconds - no setup required!*
+*Installs to your Discord account — works in DMs and any server you're in, no server permissions required.*
 
 ---
 
-### **Option 2: Self-Hosting**
+### Self-Hosting
 
 If you prefer to run your own instance:
 
@@ -108,14 +129,13 @@ If you prefer to run your own instance:
    ```
 
 3. **Set up your environment variables:**
-   - Copy `.env.example` to `.env` and fill in your bot token
 
    ```env
    BOT_TOKEN=your_discord_bot_token
    CLIENT_ID=your_bot_client_id
    ```
 
-4. **Register the slash commands:**
+4. **Register commands:**
 
    ```bash
    npm run register
@@ -131,6 +151,6 @@ If you prefer to run your own instance:
 
 ## 📞 Need Help?
 
-**Got questions? Have a feature requests? Found an issue?**
+**Got questions? Have a feature request? Found an issue?**
 
-Then please join our [support server](https://biast12.com/botsupport)
+Join the [support server](https://biast12.com/botsupport)
