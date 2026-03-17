@@ -8,6 +8,7 @@ import { AvatarCommand } from './commands/avatarCommand';
 import { TimestampCommand } from './commands/timestampCommand';
 import { SnowflakeCommand } from './commands/snowflakeCommand';
 import { ColorCommand } from './commands/colorCommand';
+import { CopyMessageDataCommand } from './commands/context/copyMessageDataCommand';
 import { sendError } from './core/response';
 import { logger } from './utils/logger';
 import { LogArea, LogLevel } from './types/logger';
@@ -42,6 +43,8 @@ export class UserUtilityBot {
     this.commandManager.register(new TimestampCommand());
     this.commandManager.register(new SnowflakeCommand());
     this.commandManager.register(new ColorCommand());
+
+    this.commandManager.registerContextMenu(new CopyMessageDataCommand());
   }
 
   private setupEventHandlers(): void {
@@ -61,6 +64,40 @@ export class UserUtilityBot {
   private async handleInteraction(interaction: Interaction): Promise<void> {
     if (interaction.isAutocomplete()) {
       await this.handleAutocomplete(interaction);
+      return;
+    }
+
+    if (interaction.isMessageContextMenuCommand()) {
+      const { commandName } = interaction;
+      try {
+        if (!this.commandManager.hasContextMenuCommand(commandName)) return;
+        await this.commandManager.executeContextMenu(commandName, {
+          client: this.client,
+          interaction
+        });
+      } catch (error) {
+        logger.error(
+          LogArea.COMMANDS,
+          `Error executing context menu command "${commandName}": ${error instanceof Error ? error.message : error}`
+        );
+      }
+      return;
+    }
+
+    if (interaction.isUserContextMenuCommand()) {
+      const { commandName } = interaction;
+      try {
+        if (!this.commandManager.hasContextMenuCommand(commandName)) return;
+        await this.commandManager.executeContextMenu(commandName, {
+          client: this.client,
+          interaction
+        });
+      } catch (error) {
+        logger.error(
+          LogArea.COMMANDS,
+          `Error executing context menu command "${commandName}": ${error instanceof Error ? error.message : error}`
+        );
+      }
       return;
     }
 

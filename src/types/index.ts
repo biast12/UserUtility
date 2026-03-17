@@ -6,7 +6,9 @@ import {
   ContainerBuilder,
   MessageFlags,
   BitFieldResolvable,
-  MessageFlagsString
+  MessageFlagsString,
+  MessageContextMenuCommandInteraction,
+  UserContextMenuCommandInteraction
 } from 'discord.js';
 
 // Core command interfaces
@@ -14,6 +16,18 @@ export interface CommandContext {
   client: Client;
   interaction: ChatInputCommandInteraction;
 }
+
+export interface MessageContextMenuContext {
+  client: Client;
+  interaction: MessageContextMenuCommandInteraction;
+}
+
+export interface UserContextMenuContext {
+  client: Client;
+  interaction: UserContextMenuCommandInteraction;
+}
+
+export type ContextMenuContext = MessageContextMenuContext | UserContextMenuContext;
 
 export interface AutocompleteContext {
   client: Client;

@@ -8,6 +8,7 @@ import { AvatarCommand } from '../commands/avatarCommand';
 import { TimestampCommand } from '../commands/timestampCommand';
 import { SnowflakeCommand } from '../commands/snowflakeCommand';
 import { ColorCommand } from '../commands/colorCommand';
+import { CopyMessageDataCommand } from '../commands/context/copyMessageDataCommand';
 import { logger } from './logger';
 import { LogArea } from '../types/logger';
 
@@ -34,9 +35,12 @@ async function registerCommands(): Promise<void> {
     commandManager.register(new SnowflakeCommand());
     commandManager.register(new ColorCommand());
 
-    // Build slash command
+    commandManager.registerContextMenu(new CopyMessageDataCommand());
+
+    // Build all commands
     const slashCommand = commandManager.buildSlashCommand();
-    const commands = [slashCommand.toJSON()];
+    const contextMenuCommands = commandManager.buildContextMenuCommands();
+    const commands = [slashCommand.toJSON(), ...contextMenuCommands.map(cmd => cmd.toJSON())];
 
     // Create REST client and deploy commands
     const rest = new REST({ version: '10' }).setToken(config.token);
@@ -46,12 +50,13 @@ async function registerCommands(): Promise<void> {
       { body: commands }
     );
 
-    // Count and log registered commands
+    // Log registered commands
     const registeredCommands = commandManager.getAllCommands();
-    const commandList = registeredCommands.map(cmd => `  /check ${cmd.name}`);
+    const registeredContextMenuCommands = commandManager.getAllContextMenuCommands();
 
-    logger.info(LogArea.NONE, `Successfully registered ${registeredCommands.length} user utility commands`);
-    commandList.forEach(cmd => logger.info(LogArea.NONE, `  ${cmd}`));
+    logger.info(LogArea.NONE, `Successfully registered ${registeredCommands.length} slash subcommands and ${registeredContextMenuCommands.length} context menu command(s)`);
+    registeredCommands.forEach(cmd => logger.info(LogArea.NONE, `  /check ${cmd.name}`));
+    registeredContextMenuCommands.forEach(cmd => logger.info(LogArea.NONE, `  [context menu] ${cmd.name}`));
     logger.spacer();
 
   } catch (error) {

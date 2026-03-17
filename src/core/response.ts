@@ -1,6 +1,8 @@
 import {
   MessageFlags,
   ChatInputCommandInteraction,
+  MessageContextMenuCommandInteraction,
+  UserContextMenuCommandInteraction,
   ContainerBuilder,
   TextDisplayBuilder,
   SectionBuilder,
@@ -142,7 +144,7 @@ export class StandardResponses {
 }
 
 export async function sendResponse(
-  interaction: ChatInputCommandInteraction,
+  interaction: ChatInputCommandInteraction | MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction,
   response: ComponentResponse,
   ephemeral: boolean = false
 ): Promise<void> {
@@ -164,7 +166,7 @@ export async function sendResponse(
 }
 
 export async function sendError(
-  interaction: ChatInputCommandInteraction,
+  interaction: ChatInputCommandInteraction | MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction,
   message: string
 ): Promise<void> {
   await sendResponse(interaction, StandardResponses.error(message), true);
