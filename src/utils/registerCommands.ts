@@ -11,6 +11,7 @@ import { ColorCommand } from '../commands/colorCommand';
 import { CopyMessageDataCommand } from '../commands/context/copyMessageDataCommand';
 import { CopyUserDataCommand } from '../commands/context/copyUserDataCommand';
 import { CopyAuthorDataCommand } from '../commands/context/copyAuthorDataCommand';
+import { CopyMemberDataCommand } from '../commands/context/copyMemberDataCommand';
 import { logger } from './logger';
 import { LogArea } from '../types/logger';
 
@@ -40,6 +41,7 @@ async function registerCommands(): Promise<void> {
     commandManager.registerContextMenu(new CopyMessageDataCommand());
     commandManager.registerContextMenu(new CopyUserDataCommand());
     commandManager.registerContextMenu(new CopyAuthorDataCommand());
+    commandManager.registerContextMenu(new CopyMemberDataCommand());
 
     // Build all commands
     const slashCommand = commandManager.buildSlashCommand();

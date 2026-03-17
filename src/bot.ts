@@ -11,6 +11,7 @@ import { ColorCommand } from './commands/colorCommand';
 import { CopyMessageDataCommand } from './commands/context/copyMessageDataCommand';
 import { CopyUserDataCommand } from './commands/context/copyUserDataCommand';
 import { CopyAuthorDataCommand } from './commands/context/copyAuthorDataCommand';
+import { CopyMemberDataCommand } from './commands/context/copyMemberDataCommand';
 import { sendError } from './core/response';
 import { logger } from './utils/logger';
 import { LogArea, LogLevel } from './types/logger';
@@ -49,6 +50,7 @@ export class UserUtilityBot {
     this.commandManager.registerContextMenu(new CopyMessageDataCommand());
     this.commandManager.registerContextMenu(new CopyUserDataCommand());
     this.commandManager.registerContextMenu(new CopyAuthorDataCommand());
+    this.commandManager.registerContextMenu(new CopyMemberDataCommand());
   }
 
   private setupEventHandlers(): void {
