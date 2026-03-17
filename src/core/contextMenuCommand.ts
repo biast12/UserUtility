@@ -10,23 +10,21 @@ export abstract class BaseContextMenuCommand {
   abstract readonly name: string;
   abstract readonly type: ApplicationCommandType.Message | ApplicationCommandType.User;
 
-  readonly integrationTypes?: ApplicationIntegrationType[];
-  readonly contexts?: InteractionContextType[];
+  readonly integrationTypes: ApplicationIntegrationType[] = [
+    ApplicationIntegrationType.UserInstall
+  ];
+  readonly contexts: InteractionContextType[] = [
+    InteractionContextType.Guild,
+    InteractionContextType.BotDM,
+    InteractionContextType.PrivateChannel
+  ];
 
   buildCommand(): ContextMenuCommandBuilder {
-    const builder = new ContextMenuCommandBuilder()
+    return new ContextMenuCommandBuilder()
       .setName(this.name)
-      .setType(this.type);
-
-    if (this.integrationTypes) {
-      builder.setIntegrationTypes(this.integrationTypes);
-    }
-
-    if (this.contexts) {
-      builder.setContexts(this.contexts);
-    }
-
-    return builder;
+      .setType(this.type)
+      .setIntegrationTypes(this.integrationTypes)
+      .setContexts(this.contexts);
   }
 
   abstract execute(context: ContextMenuContext): Promise<void>;
