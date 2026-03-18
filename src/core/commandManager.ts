@@ -7,6 +7,15 @@ export class CommandManager {
   private commands = new Map<string, BaseCommand>();
   private contextMenuCommands = new Map<string, BaseContextMenuCommand>();
 
+  constructor(
+    private readonly groupName: string = 'check',
+    private readonly groupDescription: string = 'User utility commands and information tools'
+  ) {}
+
+  public get name(): string {
+    return this.groupName;
+  }
+
   public register(command: BaseCommand): void {
     this.commands.set(command.name, command);
   }
@@ -17,8 +26,8 @@ export class CommandManager {
 
   public buildSlashCommand(): SlashCommandBuilder {
     const builder = new SlashCommandBuilder()
-      .setName('check')
-      .setDescription('User utility commands and information tools');
+      .setName(this.groupName)
+      .setDescription(this.groupDescription);
     for (const command of this.commands.values()) {
       builder.addSubcommand(command.buildCommand());
     }

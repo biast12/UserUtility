@@ -12,6 +12,8 @@ import { CopyMessageDataCommand } from '../commands/context/copyMessageDataComma
 import { CopyUserDataCommand } from '../commands/context/copyUserDataCommand';
 import { CopyAuthorDataCommand } from '../commands/context/copyAuthorDataCommand';
 import { CopyMemberDataCommand } from '../commands/context/copyMemberDataCommand';
+import { TestMessageCommand } from '../commands/testMessageCommand';
+import { TestModalCommand } from '../commands/testModalCommand';
 import { logger } from './logger';
 import { LogArea } from '../types/logger';
 
@@ -28,25 +30,32 @@ async function registerCommands(): Promise<void> {
       throw new Error('CLIENT_ID could not be determined. Please set it in environment variables.');
     }
 
-    // Set up command manager and register all commands
-    const commandManager = new CommandManager();
-    commandManager.register(new UserCommand());
-    commandManager.register(new InviteCommand());
-    commandManager.register(new BadDomainCommand());
-    commandManager.register(new AvatarCommand());
-    commandManager.register(new TimestampCommand());
-    commandManager.register(new SnowflakeCommand());
-    commandManager.register(new ColorCommand());
+    // Set up command managers
+    const checkCommandManager = new CommandManager('check', 'User utility commands and information tools');
+    checkCommandManager.register(new UserCommand());
+    checkCommandManager.register(new InviteCommand());
+    checkCommandManager.register(new BadDomainCommand());
+    checkCommandManager.register(new AvatarCommand());
+    checkCommandManager.register(new TimestampCommand());
+    checkCommandManager.register(new SnowflakeCommand());
+    checkCommandManager.register(new ColorCommand());
 
-    commandManager.registerContextMenu(new CopyMessageDataCommand());
-    commandManager.registerContextMenu(new CopyUserDataCommand());
-    commandManager.registerContextMenu(new CopyAuthorDataCommand());
-    commandManager.registerContextMenu(new CopyMemberDataCommand());
+    const testCommandManager = new CommandManager('test', 'Commands for testing raw Discord payloads');
+    testCommandManager.register(new TestMessageCommand());
+    testCommandManager.register(new TestModalCommand());
+
+    const contextMenuManager = new CommandManager();
+    contextMenuManager.registerContextMenu(new CopyMessageDataCommand());
+    contextMenuManager.registerContextMenu(new CopyUserDataCommand());
+    contextMenuManager.registerContextMenu(new CopyAuthorDataCommand());
+    contextMenuManager.registerContextMenu(new CopyMemberDataCommand());
 
     // Build all commands
-    const slashCommand = commandManager.buildSlashCommand();
-    const contextMenuCommands = commandManager.buildContextMenuCommands();
-    const commands = [slashCommand.toJSON(), ...contextMenuCommands.map(cmd => cmd.toJSON())];
+    const commands = [
+      checkCommandManager.buildSlashCommand().toJSON(),
+      testCommandManager.buildSlashCommand().toJSON(),
+      ...contextMenuManager.buildContextMenuCommands().map(cmd => cmd.toJSON())
+    ];
 
     // Create REST client and deploy commands
     const rest = new REST({ version: '10' }).setToken(config.token);
@@ -57,12 +66,12 @@ async function registerCommands(): Promise<void> {
     );
 
     // Log registered commands
-    const registeredCommands = commandManager.getAllCommands();
-    const registeredContextMenuCommands = commandManager.getAllContextMenuCommands();
-
-    logger.info(LogArea.NONE, `Successfully registered ${registeredCommands.length} slash subcommands and ${registeredContextMenuCommands.length} context menu command(s)`);
-    registeredCommands.forEach(cmd => logger.info(LogArea.NONE, `  /check ${cmd.name}`));
-    registeredContextMenuCommands.forEach(cmd => logger.info(LogArea.NONE, `  [context menu] ${cmd.name}`));
+    const totalSlash = checkCommandManager.getAllCommands().length + testCommandManager.getAllCommands().length;
+    const contextMenuCommands = contextMenuManager.getAllContextMenuCommands();
+    logger.info(LogArea.NONE, `Successfully registered ${totalSlash} slash subcommands and ${contextMenuCommands.length} context menu command(s)`);
+    checkCommandManager.getAllCommands().forEach(cmd => logger.info(LogArea.NONE, `  /check ${cmd.name}`));
+    testCommandManager.getAllCommands().forEach(cmd => logger.info(LogArea.NONE, `  /test ${cmd.name}`));
+    contextMenuCommands.forEach(cmd => logger.info(LogArea.NONE, `  [context menu] ${cmd.name}`));
     logger.spacer();
 
   } catch (error) {

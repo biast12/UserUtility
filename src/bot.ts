@@ -1,4 +1,4 @@
-import { Client, GatewayIntentBits, Interaction, AutocompleteInteraction } from 'discord.js';
+import { Client, GatewayIntentBits, Interaction, AutocompleteInteraction, ModalSubmitInteraction } from 'discord.js';
 import { validateConfig, getBotConfig } from './core/config';
 import { CommandManager } from './core/commandManager';
 import { UserCommand } from './commands/userCommand';
@@ -12,13 +12,17 @@ import { CopyMessageDataCommand } from './commands/context/copyMessageDataComman
 import { CopyUserDataCommand } from './commands/context/copyUserDataCommand';
 import { CopyAuthorDataCommand } from './commands/context/copyAuthorDataCommand';
 import { CopyMemberDataCommand } from './commands/context/copyMemberDataCommand';
+import { TestMessageCommand } from './commands/testMessageCommand';
+import { TestModalCommand, TEST_MODAL_PREFIX, handleTestModalSubmit } from './commands/testModalCommand';
 import { sendError } from './core/response';
 import { logger } from './utils/logger';
 import { LogArea, LogLevel } from './types/logger';
 
 export class UserUtilityBot {
   private client: Client;
-  private commandManager: CommandManager;
+  private checkCommandManager: CommandManager;
+  private testCommandManager: CommandManager;
+  private contextMenuManager: CommandManager;
 
   constructor() {
     validateConfig();
@@ -33,24 +37,29 @@ export class UserUtilityBot {
       allowedMentions: { parse: [] }
     });
 
-    this.commandManager = new CommandManager();
+    this.checkCommandManager = new CommandManager('check', 'User utility commands and information tools');
+    this.testCommandManager = new CommandManager('test', 'Commands for testing raw Discord payloads');
+    this.contextMenuManager = new CommandManager();
     this.registerCommands();
     this.setupEventHandlers();
   }
 
   private registerCommands(): void {
-    this.commandManager.register(new UserCommand());
-    this.commandManager.register(new InviteCommand());
-    this.commandManager.register(new BadDomainCommand());
-    this.commandManager.register(new AvatarCommand());
-    this.commandManager.register(new TimestampCommand());
-    this.commandManager.register(new SnowflakeCommand());
-    this.commandManager.register(new ColorCommand());
+    this.checkCommandManager.register(new UserCommand());
+    this.checkCommandManager.register(new InviteCommand());
+    this.checkCommandManager.register(new BadDomainCommand());
+    this.checkCommandManager.register(new AvatarCommand());
+    this.checkCommandManager.register(new TimestampCommand());
+    this.checkCommandManager.register(new SnowflakeCommand());
+    this.checkCommandManager.register(new ColorCommand());
+    
+    this.testCommandManager.register(new TestMessageCommand());
+    this.testCommandManager.register(new TestModalCommand());
 
-    this.commandManager.registerContextMenu(new CopyMessageDataCommand());
-    this.commandManager.registerContextMenu(new CopyUserDataCommand());
-    this.commandManager.registerContextMenu(new CopyAuthorDataCommand());
-    this.commandManager.registerContextMenu(new CopyMemberDataCommand());
+    this.contextMenuManager.registerContextMenu(new CopyMessageDataCommand());
+    this.contextMenuManager.registerContextMenu(new CopyUserDataCommand());
+    this.contextMenuManager.registerContextMenu(new CopyAuthorDataCommand());
+    this.contextMenuManager.registerContextMenu(new CopyMemberDataCommand());
   }
 
   private setupEventHandlers(): void {
@@ -73,11 +82,23 @@ export class UserUtilityBot {
       return;
     }
 
+    if (interaction.isModalSubmit() && interaction.customId.startsWith(TEST_MODAL_PREFIX)) {
+      try {
+        await handleTestModalSubmit(interaction as ModalSubmitInteraction);
+      } catch (error) {
+        logger.error(
+          LogArea.COMMANDS,
+          `Error handling test modal submit: ${error instanceof Error ? error.message : error}`
+        );
+      }
+      return;
+    }
+
     if (interaction.isMessageContextMenuCommand()) {
       const { commandName } = interaction;
       try {
-        if (!this.commandManager.hasContextMenuCommand(commandName)) return;
-        await this.commandManager.executeContextMenu(commandName, {
+        if (!this.contextMenuManager.hasContextMenuCommand(commandName)) return;
+        await this.contextMenuManager.executeContextMenu(commandName, {
           client: this.client,
           interaction
         });
@@ -93,8 +114,8 @@ export class UserUtilityBot {
     if (interaction.isUserContextMenuCommand()) {
       const { commandName } = interaction;
       try {
-        if (!this.commandManager.hasContextMenuCommand(commandName)) return;
-        await this.commandManager.executeContextMenu(commandName, {
+        if (!this.contextMenuManager.hasContextMenuCommand(commandName)) return;
+        await this.contextMenuManager.executeContextMenu(commandName, {
           client: this.client,
           interaction
         });
@@ -111,17 +132,21 @@ export class UserUtilityBot {
 
     const { commandName } = interaction;
 
-    if (commandName !== 'check') return;
+    const manager = commandName === 'check' ? this.checkCommandManager
+      : commandName === 'test' ? this.testCommandManager
+      : null;
+
+    if (!manager) return;
 
     try {
       const subcommandName = interaction.options.getSubcommand();
 
-      if (!this.commandManager.hasCommand(subcommandName)) {
+      if (!manager.hasCommand(subcommandName)) {
         await sendError(interaction, 'Unknown subcommand. Please try again.');
         return;
       }
 
-      await this.commandManager.execute(subcommandName, {
+      await manager.execute(subcommandName, {
         client: this.client,
         interaction
       });
@@ -129,7 +154,7 @@ export class UserUtilityBot {
     } catch (error) {
       logger.error(
         LogArea.COMMANDS,
-        `Error executing command "${commandName}": ${error instanceof Error ? error.message : error}`
+        `Error executing command "/${commandName}": ${error instanceof Error ? error.message : error}`
       );
       await sendError(interaction, 'An unexpected error occurred while processing your request.');
     }
@@ -139,10 +164,14 @@ export class UserUtilityBot {
     try {
       const { commandName } = interaction;
 
-      if (commandName !== 'check') return;
+      const manager = commandName === 'check' ? this.checkCommandManager
+        : commandName === 'test' ? this.testCommandManager
+        : null;
+
+      if (!manager) return;
 
       const subcommandName = interaction.options.getSubcommand();
-      const command = this.commandManager.getAllCommands().find(cmd => cmd.name === subcommandName);
+      const command = manager.getAllCommands().find(cmd => cmd.name === subcommandName);
       if (command && command.handleAutocomplete) {
         await command.handleAutocomplete({
           client: this.client,
