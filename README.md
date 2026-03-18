@@ -31,7 +31,9 @@ UserUtility is the ultimate Discord utility bot providing essential information 
 
 ## 🎯 Slash Commands
 
-All slash commands are grouped under `/check`.
+### `/check` — User utility commands
+
+### `/test` — Developer testing tools
 
 ### 👤 **User Analysis** (`/check user`)
 
@@ -80,6 +82,55 @@ All slash commands are grouped under `/check`.
 ### 🛡️ **Domain Security** (`/check baddomain`)
 
 - Check domains against Discord's bad-domains list
+
+---
+
+## 🧪 Test Commands
+
+All test commands are grouped under `/test`. Responses are ephemeral — only you can see them.
+
+### 📨 **Message Tester** (`/test message`)
+
+Post any raw Discord message payload JSON to see exactly how it renders.
+
+- Accepts a full message object: `content`, `embeds`, `components`, `flags`, `tts`, `allowed_mentions`, `poll`
+- Supports legacy components and Components V2 — V2 types (Container, Section, TextDisplay, etc.) are auto-detected and the `IS_COMPONENTS_V2` flag is added automatically
+- Supported flags: `SUPPRESS_EMBEDS` (`4`), `EPHEMERAL` (`64`), `SUPPRESS_NOTIFICATIONS` (`4096`), `IS_COMPONENTS_V2` (`32768`) — combine with bitwise OR
+- Placeholders: `{{id}}` (unique ID), `{{ts}}` (Unix timestamp), `{{bot}}` (bot client ID)
+
+**Examples:**
+```json
+{"content": "Hello world!"}
+{"embeds": [{"title": "Test", "color": 5814783, "description": "Embed test"}]}
+{"flags": 64, "embeds": [{"title": "Ephemeral embed"}]}
+{"components": [{"type": 17, "components": [{"type": 10, "content": "V2 text block"}]}]}
+```
+
+### 🪟 **Modal Tester** (`/test modal`)
+
+Trigger any raw Discord modal JSON to see how it looks and test field submission.
+
+- Accepts a modal object: `{ title, custom_id, components }`
+- Same placeholders apply (`{{id}}`, `{{ts}}`, `{{bot}}`)
+- Submitting the modal echoes all field values back ephemerally so you can verify the data flow end to end
+
+**Example:**
+```json
+{
+  "title": "Feedback",
+  "custom_id": "{{id}}",
+  "components": [{
+    "type": 1,
+    "components": [{
+      "type": 4,
+      "custom_id": "{{id}}",
+      "label": "Your feedback",
+      "style": 2,
+      "required": true
+    }]
+  }]
+}
+```
 
 ---
 
