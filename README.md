@@ -94,7 +94,7 @@ All test commands are grouped under `/test`. Responses are ephemeral — only yo
 Post any raw Discord message payload JSON to see exactly how it renders.
 
 - Accepts a full message object: `content`, `embeds`, `components`, `flags`, `tts`, `allowed_mentions`, `poll`
-- Supports legacy components and Components V2 — V2 types (Container, Section, TextDisplay, etc.) are auto-detected and the `IS_COMPONENTS_V2` flag is added automatically
+- Supports legacy components and Components V2
 - Supported flags: `SUPPRESS_EMBEDS` (`4`), `EPHEMERAL` (`64`), `SUPPRESS_NOTIFICATIONS` (`4096`), `IS_COMPONENTS_V2` (`32768`) — combine with bitwise OR
 - Placeholders: `{{id}}` (unique ID), `{{ts}}` (Unix timestamp), `{{bot}}` (bot client ID)
 

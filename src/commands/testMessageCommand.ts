@@ -4,24 +4,8 @@ import { CommandContext } from '../types';
 import { sendError } from '../core/response';
 import { applyPlaceholders } from '../utils/testPayload';
 
-// Component types that belong to Components V2
-const V2_COMPONENT_TYPES = new Set([9, 10, 11, 12, 13, 14, 17]);
-
 // Fields allowed on a message payload sent via interaction.reply()
 const ALLOWED_FIELDS = ['content', 'embeds', 'components', 'flags', 'tts', 'allowed_mentions', 'poll'] as const;
-
-const IS_COMPONENTS_V2 = 1 << 15;
-
-function hasV2Components(components: unknown): boolean {
-  if (!Array.isArray(components)) return false;
-  for (const comp of components) {
-    if (typeof comp !== 'object' || comp === null) continue;
-    const c = comp as Record<string, unknown>;
-    if (typeof c.type === 'number' && V2_COMPONENT_TYPES.has(c.type)) return true;
-    if (hasV2Components(c.components)) return true;
-  }
-  return false;
-}
 
 export class TestMessageCommand extends BaseCommand {
   public readonly name = 'message';
@@ -74,22 +58,6 @@ export class TestMessageCommand extends BaseCommand {
     const hasComponents = Array.isArray(payload.components) && payload.components.length > 0;
     if (!hasContent && !hasEmbeds && !hasComponents) {
       await sendError(interaction, 'Payload must include at least one of: `content`, `embeds`, or `components`.');
-      return;
-    }
-
-    // Auto-detect Components V2 and add the flag if any V2 component types are present
-    if (hasComponents && hasV2Components(payload.components)) {
-      const currentFlags = typeof payload.flags === 'number' ? payload.flags : 0;
-      payload.flags = currentFlags | IS_COMPONENTS_V2;
-    }
-
-    // IS_COMPONENTS_V2 is mutually exclusive with content and embeds
-    const effectiveFlags = typeof payload.flags === 'number' ? payload.flags : 0;
-    if ((effectiveFlags & IS_COMPONENTS_V2) !== 0 && (hasContent || hasEmbeds)) {
-      await sendError(
-        interaction,
-        '`IS_COMPONENTS_V2` (`1 << 15`) cannot be combined with `content` or `embeds` — Discord will reject this with a 400 error.\n\nRemove `content`/`embeds` from your payload, or remove the flag.'
-      );
       return;
     }
 
