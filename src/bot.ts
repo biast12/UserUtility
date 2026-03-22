@@ -156,7 +156,11 @@ export class UserUtilityBot {
         LogArea.COMMANDS,
         `Error executing command "/${commandName}": ${error instanceof Error ? error.message : error}`
       );
-      await sendError(interaction, 'An unexpected error occurred while processing your request.');
+      try {
+        await sendError(interaction, 'An unexpected error occurred while processing your request.');
+      } catch {
+        // Interaction already replied or expired — nothing to do
+      }
     }
   }
 

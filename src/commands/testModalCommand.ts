@@ -44,36 +44,19 @@ export class TestModalCommand extends BaseCommand {
       return;
     }
 
-    if (typeof parsed.title !== 'string' || parsed.title.trim() === '') {
-      await sendError(interaction, 'Modal payload must have a non-empty `title` string.');
-      return;
-    }
-
-    if (!Array.isArray(parsed.components) || parsed.components.length === 0) {
-      await sendError(interaction, 'Modal payload must have a `components` array with at least one action row containing text inputs.');
-      return;
-    }
-
     // Prefix custom_id so the modal submit handler can identify test modals.
     // We preserve any custom_id the user provided as the suffix.
     const userCustomId = typeof parsed.custom_id === 'string' && parsed.custom_id.trim() !== ''
       ? parsed.custom_id
       : generateId();
-    const prefixedCustomId = `${TEST_MODAL_PREFIX}${userCustomId}`;
 
-    const modalData = {
-      title: parsed.title,
-      custom_id: prefixedCustomId,
-      components: parsed.components
-    };
+    const modalData = { ...parsed, custom_id: `${TEST_MODAL_PREFIX}${userCustomId}` };
 
     try {
       // Pass the raw API object via the JSONEncodable interface — discord.js calls toJSON()
       // and forwards the result directly to the Discord API.
       await interaction.showModal({ toJSON: () => modalData } as any);
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      await sendError(interaction, `**Discord rejected the modal**\n\`\`\`\n${message}\n\`\`\``);
+    } catch {
     }
   }
 }
