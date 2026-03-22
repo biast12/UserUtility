@@ -67,15 +67,54 @@ export class TestModalCommand extends BaseCommand {
   }
 }
 
+interface ExtractedField {
+  customId: string;
+  values: string[];
+}
+
+function extractFields(components: unknown[]): ExtractedField[] {
+  const results: ExtractedField[] = [];
+  for (const comp of components) {
+    if (typeof comp !== 'object' || comp === null) continue;
+    const c = comp as Record<string, unknown>;
+
+    // discord.js exposes camelCase (customId) but raw API uses snake_case (custom_id)
+    const id = (typeof c.customId === 'string' ? c.customId : null)
+      ?? (typeof c.custom_id === 'string' ? c.custom_id : null);
+    if (id !== null) {
+      if (typeof c.value === 'string') {
+        // TextInput (4)
+        results.push({ customId: id, values: [c.value] });
+      } else if (Array.isArray(c.values)) {
+        // Selects (3,5,6,7,8), RadioGroup (21), CheckboxGroup (22)
+        results.push({ customId: id, values: c.values as string[] })
+      } else if (typeof c.filename === 'string') {
+        // FileUpload (19)
+        const size = typeof c.fileSize === 'number' || typeof c.file_size === 'number'
+          ? ` (${c.fileSize ?? c.file_size} bytes)`
+          : '';
+        results.push({ customId: id, values: [`${c.filename}${size}`] });
+      } else if (typeof c.value === 'boolean') {
+        // Checkbox (23)
+        results.push({ customId: id, values: [c.value ? 'checked' : 'unchecked'] });
+      }
+    }
+
+    if (Array.isArray(c.components)) results.push(...extractFields(c.components));
+    if (typeof c.component === 'object' && c.component !== null) results.push(...extractFields([c.component]));
+  }
+  return results;
+}
+
 export async function handleTestModalSubmit(interaction: ModalSubmitInteraction): Promise<void> {
-  const fields = [...interaction.fields.fields.values()]
-    .filter((f): f is typeof f & { value: string } => f.type === ComponentType.TextInput);
+  const rawComponents: unknown[] = (interaction as any).components ?? [];
+  const fields = extractFields(rawComponents);
 
   const lines = fields.length > 0
-    ? fields.map(f => `\`${f.customId}\`  →  ${f.value !== '' ? f.value : '*(empty)*'}`)
+    ? fields.map(f => `\`${f.customId}\`  →  ${f.values.length > 0 ? f.values.join(', ') : '*(empty)*'}`)
     : ['*(no fields)*'];
 
-  const json = JSON.stringify((interaction as any).components ?? [], null, 2);
+  const json = JSON.stringify(rawComponents, null, 2);
 
   await interaction.reply({
     content: `**Modal submitted!**\n\n${lines.join('\n')}\n\`\`\`json\n${json.slice(0, 1800)}\n\`\`\``,
