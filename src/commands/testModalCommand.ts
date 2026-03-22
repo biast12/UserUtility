@@ -86,8 +86,10 @@ export async function handleTestModalSubmit(interaction: ModalSubmitInteraction)
     ? fields.map(f => `\`${f.customId}\`  →  ${f.value !== '' ? f.value : '*(empty)*'}`)
     : ['*(no fields)*'];
 
+  const json = JSON.stringify((interaction as any).components ?? [], null, 2);
+
   await interaction.reply({
-    content: `**Modal submitted!**\n\n${lines.join('\n')}`,
+    content: `**Modal submitted!**\n\n${lines.join('\n')}\n\`\`\`json\n${json.slice(0, 1800)}\n\`\`\``,
     flags: MessageFlags.Ephemeral
   });
 }
