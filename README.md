@@ -93,12 +93,12 @@ All test commands are grouped under `/test`. Responses are ephemeral — only yo
 
 Post any raw Discord message payload JSON to see exactly how it renders.
 
-- Accepts a full message object: `content`, `embeds`, `components`, `flags`, `tts`, `allowed_mentions`, `poll`
-- Supports legacy components and Components V2
-- Supported flags: `SUPPRESS_EMBEDS` (`4`), `EPHEMERAL` (`64`), `SUPPRESS_NOTIFICATIONS` (`4096`), `IS_COMPONENTS_V2` (`32768`) — combine with bitwise OR
+- Passes the full JSON object directly to Discord — whatever Discord accepts, goes through
 - Placeholders: `{{id}}` (unique ID), `{{ts}}` (Unix timestamp), `{{bot}}` (bot client ID)
+- Supported flags: `SUPPRESS_EMBEDS` (`4`), `EPHEMERAL` (`64`), `SUPPRESS_NOTIFICATIONS` (`4096`), `IS_COMPONENTS_V2` (`32768`) — combine with bitwise OR
 
 **Examples:**
+
 ```json
 {"content": "Hello world!"}
 {"embeds": [{"title": "Test", "color": 5814783, "description": "Embed test"}]}
@@ -110,11 +110,13 @@ Post any raw Discord message payload JSON to see exactly how it renders.
 
 Trigger any raw Discord modal JSON to see how it looks and test field submission.
 
-- Accepts a modal object: `{ title, custom_id, components }`
+- Accepts a bare modal object `{ title, custom_id, components }` or a full interaction response `{ type: 9, data: { ... } }`
+- Supports `//` line comments in your JSON
 - Same placeholders apply (`{{id}}`, `{{ts}}`, `{{bot}}`)
-- Submitting the modal echoes all field values back ephemerally so you can verify the data flow end to end
+- Submitting the modal echoes all submitted component values back ephemerally — supports text inputs, selects, checkboxes, file uploads, and any nested component structure
 
-**Example:**
+**Examples:**
+
 ```json
 {
   "title": "Feedback",
@@ -132,6 +134,21 @@ Trigger any raw Discord modal JSON to see how it looks and test field submission
 }
 ```
 
+```json
+{
+  "type": 9,
+  "data": {
+    "title": "Pick someone",
+    "custom_id": "{{id}}",
+    "components": [{
+      "type": 18,
+      "label": "Who?",
+      "component": { "type": 7, "custom_id": "{{id}}", "required": true }
+    }]
+  }
+}
+```
+
 ---
 
 ## 🖱️ Context Menu Commands
@@ -140,16 +157,16 @@ Right-click any message or user and select **Apps** to access these commands. Al
 
 ### Right-click a Message
 
-| Command | Description | Available |
-|---------|-------------|-----------|
-| **Copy Message Data** | Full raw message object as a `.json` file | Everywhere |
-| **Copy Author Data** | Raw user object of the message author as a `.json` file | Everywhere |
+| Command               | Description                                                | Available  |
+|-----------------------|------------------------------------------------------------|------------|
+| **Copy Message Data** | Full raw message object as a `.json` file                  | Everywhere |
+| **Copy Author Data**  | Raw user object of the message author as a `.json` file    | Everywhere |
 
 ### Right-click a User
 
-| Command | Description | Available |
-|---------|-------------|-----------|
-| **Copy User Data** | Full raw user object as a `.json` file | Everywhere |
+| Command              | Description                                                                         | Available    |
+|----------------------|-------------------------------------------------------------------------------------|--------------|
+| **Copy User Data**   | Full raw user object as a `.json` file                                              | Everywhere   |
 | **Copy Member Data** | Raw guild member object (roles, nickname, join date, permissions) as a `.json` file | Servers only |
 
 ---
