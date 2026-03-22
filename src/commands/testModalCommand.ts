@@ -44,13 +44,19 @@ export class TestModalCommand extends BaseCommand {
       return;
     }
 
+    // Support both a bare modal object ({ title, custom_id, components })
+    // and a wrapped interaction response ({ type, data: { title, custom_id, components } }).
+    const modalPayload = typeof parsed.data === 'object' && parsed.data !== null && !Array.isArray(parsed.data)
+      ? parsed.data as Record<string, unknown>
+      : parsed;
+
     // Prefix custom_id so the modal submit handler can identify test modals.
     // We preserve any custom_id the user provided as the suffix.
-    const userCustomId = typeof parsed.custom_id === 'string' && parsed.custom_id.trim() !== ''
-      ? parsed.custom_id
+    const userCustomId = typeof modalPayload.custom_id === 'string' && modalPayload.custom_id.trim() !== ''
+      ? modalPayload.custom_id
       : generateId();
 
-    const modalData = { ...parsed, custom_id: `${TEST_MODAL_PREFIX}${userCustomId}` };
+    const modalData = { ...modalPayload, custom_id: `${TEST_MODAL_PREFIX}${userCustomId}` };
 
     try {
       // Pass the raw API object via the JSONEncodable interface — discord.js calls toJSON()
