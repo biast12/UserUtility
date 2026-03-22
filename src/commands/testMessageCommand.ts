@@ -3,6 +3,7 @@ import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { sendError } from '../core/response';
 import { applyPlaceholders } from '../utils/testPayload';
+import { stripJsonComments } from '../utils/parsers';
 
 // Fields allowed on a message payload sent via interaction.reply()
 const ALLOWED_FIELDS = ['content', 'embeds', 'components', 'flags', 'tts', 'allowed_mentions', 'poll'] as const;
@@ -28,10 +29,10 @@ export class TestMessageCommand extends BaseCommand {
     const { client, interaction } = context;
     const rawJson = interaction.options.getString('payload', true);
 
-    // Apply placeholders before parsing so the result is valid JSON
-    const resolved = applyPlaceholders(rawJson, client.user?.id ?? '');
+    // Strip // line comments and apply placeholders before parsing
+    const stripped = stripJsonComments(rawJson);
+    const resolved = applyPlaceholders(stripped, client.user?.id ?? '');
 
-    // Parse
     let parsed: Record<string, unknown>;
     try {
       const value = JSON.parse(resolved);

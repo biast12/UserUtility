@@ -73,3 +73,33 @@ export function buildCdnUrl(type: 'icons' | 'banners' | 'splashes' | 'avatars', 
 export function joinNonEmpty(values: (string | null | undefined)[], separator: string = '\n'): string {
   return values.filter(Boolean).join(separator);
 }
+
+/** Strip // line comments from JSON-like text, ignoring // inside string literals. */
+export function stripJsonComments(input: string): string {
+  let out = '';
+  let i = 0;
+  while (i < input.length) {
+    if (input[i] === '"') {
+      // Copy the entire string literal verbatim (handles \" escapes)
+      out += input[i++];
+      while (i < input.length) {
+        if (input[i] === '\\') {
+          out += input[i++];
+          if (i < input.length) out += input[i++];
+        } else if (input[i] === '"') {
+          out += input[i++];
+          break;
+        } else {
+          out += input[i++];
+        }
+      }
+    } else if (input[i] === '/' && input[i + 1] === '/') {
+      // Skip until end of line or the next JSON structural character,
+      // whichever comes first — handles single-line Discord input with no real newlines.
+      while (i < input.length && input[i] !== '\n' && input[i] !== '"' && input[i] !== '{' && input[i] !== '[' && input[i] !== '}' && input[i] !== ']') i++;
+    } else {
+      out += input[i++];
+    }
+  }
+  return out;
+}

@@ -3,6 +3,7 @@ import { BaseCommand } from '../core/command';
 import { CommandContext } from '../types';
 import { sendError } from '../core/response';
 import { applyPlaceholders, generateId } from '../utils/testPayload';
+import { stripJsonComments } from '../utils/parsers';
 
 export const TEST_MODAL_PREFIX = 'test_modal:';
 
@@ -27,7 +28,7 @@ export class TestModalCommand extends BaseCommand {
     const { client, interaction } = context;
     const rawJson = interaction.options.getString('payload', true);
 
-    const resolved = applyPlaceholders(rawJson, client.user?.id ?? '');
+    const resolved = applyPlaceholders(stripJsonComments(rawJson), client.user?.id ?? '');
 
     let parsed: Record<string, unknown>;
     try {
